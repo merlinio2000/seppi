@@ -57,9 +57,6 @@ def QR_zerlegung(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return (Q,R)
 
 
-
-
-
 import unittest
 
 class LineareGlgTest(unittest.TestCase):
