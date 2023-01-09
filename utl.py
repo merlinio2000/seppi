@@ -69,7 +69,7 @@ def assert_normed(v: np.ndarray):
     length = np.linalg.norm(v, 2)
 
     if not np.isclose(length, 1):
-        raise Exception('vector is not normed')
+        raise Exception(f'vector is not normed, {length=}')
     return True
 
 
