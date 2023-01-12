@@ -3,7 +3,7 @@ import numpy as np
 import scipy.linalg as spl
 
 from utl import assert_square, assert_dimensions_match, assert_eq_shape, assert_is_vec
-from error import apriori_n_steps
+from error import apriori_n_steps_vec
 
 
 def np_RLP_zerlegung(A: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -114,7 +114,7 @@ def gaussSeidel_or_jacobi(A: np.ndarray, b: np.ndarray, x0: np.ndarray, \
     x_prev = x0
     x_curr = step(x0)
 
-    expected_n = apriori_n_steps(tol, alpha, x_curr, x_prev)
+    expected_n = apriori_n_steps_vec(tol, alpha, x_curr, x_prev)
 
     err_fact = alpha / (1 - alpha)
     
