@@ -1,6 +1,37 @@
 from typing import Callable
 import numpy as np
 
+def newton_step(x_n: float, f: Callable[[float], float], df: Callable[[float], float]) -> float:
+    """
+    Führt einen Schritt der Newton Iteration durch
+
+    Parameters:
+        x_n: momentaner x Wert
+        f: Funktion deren Nullstelle gesucht wird
+        df: Ableitung dieser Funktion
+    Returns
+        x_(n+1): der nächste Wert der Newton-Iteration
+    """
+    return x_n - f(x_n) / df(x_n)
+
+def newton_iter(f: Callable[[float], float], df: Callable[[float], float], x0: float, tol: float = 1e-7) \
+        -> float:
+    """
+    Newton-Iteration einer Funktion f zum Startwert x0
+
+    Parameters:
+        f: Funktion deren Nullstelle gesucht wird
+        df: Ableitung dieser Funktion
+        x0: Startwert für die Iteration
+        tol: Toleranz für die Genauigkeit der Lösung
+    """
+    x_curr = x0
+
+    while f(x_curr - tol) * f(x_curr + tol) > 0:
+        x_curr = newton_step(x_curr, f, df)
+
+    return x_curr
+
 
 def check_banach(interval: tuple[float, float], min_F: float, max_F: float, max_Fdx: float) -> bool:
     """
@@ -56,3 +87,24 @@ def fixpunkt_iter(F: Callable[[float], float], x0: float, tolerance: float, alph
         raise Exception(f'not converged after {N} iterations')
     
     return (x_next, k)
+
+
+
+import unittest
+
+
+class FixpunktTest(unittest.TestCase):
+    def test_HS2020_A3a(self):
+        def f(x):
+            return np.exp(x) - np.sqrt(x) - 2
+
+        def df(x):
+            return np.exp(x) - (0.5 * 1 / np.sqrt(x))
+
+        nst = newton_iter(f, df, 0.5, 1e-7)
+
+        self.assertAlmostEqual(nst, 1.1174679154114777)
+
+
+if __name__ == '__main__':
+    unittest.main()
