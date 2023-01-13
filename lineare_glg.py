@@ -256,7 +256,7 @@ class LineareGlgTest(unittest.TestCase):
                     [60, 90, 500]], dtype=np.float64)
         b = np.array([3_080, 4_070, 5_030], dtype=np.float64)
 
-        _, _, x = gauss(A, b, pretty_print=True)
+        _, _, x = gauss(A, b, pretty_print=False)
 
         expected = np.array([[3, 15, 7]], dtype=np.float64)
 
