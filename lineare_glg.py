@@ -163,7 +163,7 @@ def gaussSeidel_or_jacobi(A: np.ndarray, b: np.ndarray, x0: np.ndarray, \
     x0 = x0.astype(np.float64)
 
     if not is_diagonaldominant(A):
-        print(f'{bcolors.WARNING}Warnung: A ist nicht Diagonaldominant{bcolors.ENDC}') 
+        print(f'{bcolors.WARNING}Warnung: A ist nicht Diagonaldominant\n{bcolors.OKBLUE} -> Zeilenvertauschen kann helfen{bcolors.ENDC}')
 
     R = np.triu(A, 1)
     L = np.tril(A, -1)
