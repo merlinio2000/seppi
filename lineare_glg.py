@@ -6,6 +6,77 @@ from utl import assert_square, assert_dimensions_match, assert_eq_shape, assert_
 from error import apriori_n_steps_vec
 
 
+def gauss(A: np.ndarray, b: np.ndarray, pretty_print: bool=True) -> tuple[np.ndarray, float, np.ndarray]:
+    """
+    Gauss Verfahren für Ax=b mit optionalem print der einzelnen schritte
+
+    Parameters:
+        A: n x n Matrix
+        b: Vektor in R^n
+        pretty_print=True: ob die einzelnen Gauss-Schritte ausgegeben werden solllen
+    Returns:
+        A: obere Dreiecksmatrix welche durch gauss aus A entsteht
+        det_A: die Determinante von A
+        x: Die Lösung des Gleichungsystems
+    """
+    assert_square(A)
+    assert_is_vec(b)
+    assert_dimensions_match(A, b)
+
+    def print_step(A, b, lambd, lambd_idx, pivot_idx):
+        if not pretty_print:
+            return
+        with np.printoptions(precision=4, linewidth=150):
+            matr = ' ' + str(A).replace('[', '').replace(']', '')
+            vec = str(b)[1:-1]
+        
+        matr_lines = matr.splitlines()
+        vec_lines = vec.split(' ')
+
+        for i, (matr_line, vec_line) in enumerate(zip(matr_lines, vec_lines)):
+            print(f'{matr_line} | {vec_line}', f'   - ({lambd} * {pivot_idx+1}. Zeile)' if i == lambd_idx else '')
+
+    A = A.astype(np.float64)
+    b = b.astype(np.float64)
+    
+    
+    n = A.shape[0]
+    # Vorzeichen fuer det_A
+    s = 1
+    for i in range(n):
+        if A[i,i] == 0:
+            idx, = np.nonzero(A[i:,i])
+            if idx.size == 0:
+                raise Exception('Matrix A ist singulär')
+            else:
+                j = i+idx[0]
+                # Zeilen tauschen
+                A[[i,j], :] = A[[j,i], :]
+                b[[i,j]] = b[[j,i]]
+                s *= -1
+         
+        # Elimination
+        for j in range(i+1,n):
+            lambd = A[j,i]/A[i,i]
+            A[j,:] -= lambd*A[i,:]
+            b[j] -= lambd*b[i]
+            print_step(A, b, lambd, j, i)
+    
+        
+    # rückwaertseinsetzten
+    x = np.zeros(b.shape)
+    for i in range(n-1,-1,-1):
+        x[i] = (b[i] - A[i,i+1:].dot(x[i+1:]))/A[i,i] 
+    
+    # det_A
+    det_A: float = 1.
+    for i in range(n):
+        det_A *= A[i,i]
+    det_A *= s
+    
+    return A, det_A, x
+
+
 def np_RLP_zerlegung(A: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Zur überprüfung ob die RLP Zerlegung richtig gemacht wurde
@@ -170,6 +241,28 @@ class LineareGlgTest(unittest.TestCase):
 
         self.assertTrue(np.allclose(x_n, expected_x))
         self.assertAlmostEqual(expected_n, 86.22, places=2)
+
+    def test_FS2020_A5b(self):
+        A = np.array([[240, 120, 80],
+                    [60, 180, 170],
+                    [60, 90, 500]], dtype=np.float64)
+        b = np.array([3_080, 4_070, 5_030], dtype=np.float64)
+
+        _, _, x = gauss(A, b, pretty_print=False)
+
+        expected = np.array([[3, 15, 7]], dtype=np.float64)
+
+        self.assertTrue(np.allclose(x, expected))
+
+    def test_gauss(self):
+        A = np.array([[-1, 2, 3, 2, 5, 4, 3, -1], [3, 4, 2, 1, 0, 2, 3, 8], [2, 7, 5, -1, 2, 1, 3, 5],
+                      [3, 1, 2, 6, -3, 7, 2, -2], [5, 2, 0, 8, 7, 6, 1, 3], [-1, 3, 2, 3, 5, 3, 1, 4],
+                      [8, 7, 3, 6, 4, 9, 7, 9], [-3, 14, -2, 1, 0, -2, 10, 5]])
+        b = np.array([-11, 103, 53, -20, 95, 78, 131, -26])
+        
+        _, det_A, x = gauss(A, b, pretty_print=False)
+        self.assertAlmostEqual(det_A, np.linalg.det(A))
+        self.assertTrue(np.allclose(x, np.linalg.solve(A, b)))
 
 
 
