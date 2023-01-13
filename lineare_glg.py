@@ -2,7 +2,7 @@ from typing import Literal, Union
 import numpy as np
 import scipy.linalg as spl
 
-from utl import assert_square, assert_dimensions_match, assert_eq_shape, assert_is_vec
+from utl import assert_square, assert_dimensions_match, assert_eq_shape, assert_is_vec, is_diagonaldominant, bcolors
 from error import apriori_n_steps_vec
 
 
@@ -160,7 +160,10 @@ def gaussSeidel_or_jacobi(A: np.ndarray, b: np.ndarray, x0: np.ndarray, \
 
     A = A.astype(np.float64)
     b = b.astype(np.float64)
-    x0 = x0.astype(np.float64)    
+    x0 = x0.astype(np.float64)
+
+    if not is_diagonaldominant(A):
+        print(f'{bcolors.WARNING}Warnung: A ist nicht Diagonaldominant{bcolors.ENDC}') 
 
     R = np.triu(A, 1)
     L = np.tril(A, -1)
@@ -184,7 +187,8 @@ def gaussSeidel_or_jacobi(A: np.ndarray, b: np.ndarray, x0: np.ndarray, \
 
     alpha: float = np.linalg.norm(B, np.inf) # type: ignore
     if (alpha >= 1):
-        raise Exception('Kein Abbruchkriterium möglich/abstossender Fixpunkt')
+        raise Exception('Kein Abbruchkriterium möglich/abstossender Fixpunkt\n'
+                + 'Stattdessen muss eine fixe Anzahl Iterationen gemacht werden')
 
     x_prev = x0
     x_curr = step(x0)

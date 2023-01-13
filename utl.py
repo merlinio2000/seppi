@@ -25,6 +25,32 @@ def is_symmetric(A: np.ndarray) -> bool:
     assert_square(A)
     return np.allclose(A, A.T)
 
+def is_diagonaldominant(A: np.ndarray) -> bool:
+    # spaltenweise check
+    assert_square(A)
+    n = A.shape[0]
+    result = True
+    for i in range(n):
+        diag = np.abs(A[i, i])
+        reihen_sum = np.sum(np.abs(A[:, i])) - diag
+        result = diag > reihen_sum
+        if not result:
+            break
+    
+    if result:
+        return True
+
+    #reihenweise check
+    result = False
+    for i in range(n):
+        diag = np.abs(A[i, i])
+        reihen_sum = np.sum(np.abs(A[i, :])) - diag
+        result = diag > reihen_sum
+        if not result:
+            break
+
+    return result
+
 
 """
 Assertions
@@ -72,6 +98,20 @@ def assert_normed(v: np.ndarray):
         raise Exception(f'vector is not normed, {length=}')
     return True
 
+"""
+ANSI Escape sequences für farbige schrift im Terminal
+"""
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 
 
 import unittest
@@ -112,6 +152,30 @@ class UtlTest(unittest.TestCase):
         with self.assertRaises(Exception):
             assert_eq_shape(v1, v3)
 
+    def test_is_diagonaldominant_spalte(self):
+        A = np.array([[5, 4],
+                    [3, 4]])
+        self.assertTrue(is_diagonaldominant(A))
+
+        A = np.array([[14, 4, 2],
+                    [10, 8, 4],
+                    [4, 4, 10]])
+        self.assertFalse(is_diagonaldominant(A))
+
+        A = np.array([[-8, 12.2, -1],
+                    [6, -20, -3.5],
+                    [0, 3, 20]])
+        self.assertTrue(is_diagonaldominant(A))
+    
+    def test_is_diagonaldominant_zeile(self):
+        A = np.array([[-8, 3],
+                    [10, 11]])
+        self.assertTrue(is_diagonaldominant(A))
+
+        A = np.array([[-5, 0.5, 4],
+                        [7, 7, 0],
+                        [3, -8, 11]])
+        self.assertFalse(is_diagonaldominant(A))
 
 if __name__ == '__main__':
     unittest.main()
