@@ -32,9 +32,36 @@ def newton_iter(f: Callable[[float], float], df: Callable[[float], float], x0: f
 
     return x_curr
 
+def do_banach(interval: tuple[float, float], F: Callable[[float], float], dF: Callable[[float], float]) -> tuple[bool, float | None]:
+    """
+    **!ACHTUNG: dieses Resultat stimmt nur wenn F stetig ist im Interval!**
+    Sucht eigenständig nach dem Max/Min von F&dF im interval und überprüft das Resultat mit #check_banach
+    Benötigt eine stetige Fixpunktgleichung F(x_k) = x_{k+1} im Interval
+    NICHT funktion f(x) = y
+    Parameters:
+        interval: Grenzen des Funktionsinterval (min, max)
+        F: referenz zur !STETIGEN! Fixpunktgleichung F(x_k) = x_{k+1}
+        dF: referenz zur Ableitung von F
+    Returns:
+        bool: Ob Banachscherfixpunktsatz erfüllt ist (==check_banach)
+        float | None: Lipschitzkonstante / None falls Banach nicht erfüllt
+    """
+    (a, b) = interval
+    F_extrema = F(a), F(b)
+    F_min = min(F_extrema)
+    F_max = max(F_extrema)
+
+    dF_extrema = abs(dF(a)), abs(dF(b))
+    dF_max = max(dF_extrema)
+
+    banach_ok = check_banach(interval=(a,b), min_F=F_min, max_F=F_max, max_Fdx=dF_max)
+
+    return (True, dF_max) if banach_ok else (False, None)
+
 
 def check_banach(interval: tuple[float, float], min_F: float, max_F: float, max_Fdx: float) -> bool:
     """
+    Siehe auch: #do_banach
     Benötigt eine stetige Fixpunktgleichung F(x_k) = x_{k+1} im Interval
     NICHT funktion f(x) = y
     Parameters:
@@ -55,7 +82,7 @@ def check_banach(interval: tuple[float, float], min_F: float, max_F: float, max_
         and (min_F > a)
 
 
-def fixpunkt_iter(F: Callable[[float], float], x0: float, tolerance: float, alpha: float) -> tuple[float, int]:
+def fixpunkt_iter(F: Callable[[float], float], x0: float, tol: float, alpha: float) -> tuple[float, int]:
     """
     Fixpunktiteration für eine gegebene Fixpunktgleichung F(x_k) = x_(k+1)
 
@@ -79,7 +106,7 @@ def fixpunkt_iter(F: Callable[[float], float], x0: float, tolerance: float, alph
         x_next = F(x_curr)
         incr = abs(x_next-x_curr)
         error = alpha/(1-alpha)*incr
-        not_converged = error > tolerance
+        not_converged = error > tol
         k = k+1
         x_curr = x_next
 
@@ -104,6 +131,30 @@ class FixpunktTest(unittest.TestCase):
         nst = newton_iter(f, df, 0.5, 1e-7)
 
         self.assertAlmostEqual(nst, 1.1174679154114777)
+
+    def test_FS2020_A3a(self):
+        def F(x): 
+            return 1./(np.cos(x+np.pi/4)-1)+2
+
+        lipschitz = 0.6640946355544965
+
+        fixpkt, num_iter = fixpunkt_iter(F, x0=1, tol=1e-6, alpha=lipschitz)
+
+        self.assertAlmostEqual(fixpkt, 1.34776506)
+        self.assertEqual(num_iter, 15)
+        
+    
+    def test_FS2020_A3b(self):
+        def F(x): 
+            return 1./(np.cos(x+np.pi/4)-1)+2
+        def dF(x) : 
+            return np.sin(x + np.pi/4)/(np.cos(x + np.pi/4) - 1)**2 
+        
+        banach_ok, lipschitz = do_banach((1,2), F, dF)
+
+        self.assertTrue(banach_ok)
+        self.assertIsNotNone(lipschitz)
+        self.assertAlmostEqual(lipschitz, 0.6640946355544965) # type: ignore
 
 
 if __name__ == '__main__':
