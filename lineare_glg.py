@@ -33,8 +33,12 @@ def gauss(A: np.ndarray, b: np.ndarray, pretty_print: bool=True) -> tuple[np.nda
         matr_lines = matr.splitlines()
         vec_lines = vec.split(' ')
 
+        # Zeilen werden bei Gauss immer subtrahiert (nur manchmal mit negativem Faktor)
+        # deshalb hier die Invertierung falls - * -
+        operation = '+' if lambd < 0 else '-' 
+
         for i, (matr_line, vec_line) in enumerate(zip(matr_lines, vec_lines)):
-            print(f'{matr_line} | {vec_line}', f'   - ({lambd} * {pivot_idx+1}. Zeile)' if i == lambd_idx else '')
+            print(f'{matr_line} | {vec_line}', f'   {operation} {lambd} * {pivot_idx+1}. Zeile' if i == lambd_idx else '')
 
     A = A.astype(np.float64)
     b = b.astype(np.float64)
@@ -248,7 +252,7 @@ class LineareGlgTest(unittest.TestCase):
                     [60, 90, 500]], dtype=np.float64)
         b = np.array([3_080, 4_070, 5_030], dtype=np.float64)
 
-        _, _, x = gauss(A, b, pretty_print=False)
+        _, _, x = gauss(A, b, pretty_print=True)
 
         expected = np.array([[3, 15, 7]], dtype=np.float64)
 
