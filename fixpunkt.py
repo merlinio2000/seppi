@@ -77,7 +77,7 @@ def fixpunkt_iter(F: Callable[[float], float], x0: float, tolerance: float, alph
     x_next = np.nan
     while (not_converged and k < N):
         x_next = F(x_curr)
-        incr = np.abs(x_next-x_curr)
+        incr = abs(x_next-x_curr)
         error = alpha/(1-alpha)*incr
         not_converged = error > tolerance
         k = k+1

@@ -126,7 +126,7 @@ def eigen_QR_analysis(A: np.ndarray, max_iter: int = 100, tol: float = 1e-9) -> 
     seen_abs_ews = []
     all_absolute_different = True
     for ew in np.diag(B):
-        abs_ew = np.abs(ew)
+        abs_ew = abs(ew)
         all_absolute_different = not any(math.isclose(seen_abs_ew, abs_ew, abs_tol=tol) for seen_abs_ew in seen_abs_ews)
         seen_abs_ews.append(abs_ew)
         if not all_absolute_different:
