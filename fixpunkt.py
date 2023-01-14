@@ -77,6 +77,8 @@ def check_banach(interval: tuple[float, float], min_F: float, max_F: float, max_
     (a, b) = interval
     lipschitz = max_Fdx
 
+    # 1. Zeile: F ist eine Kontraktion
+    # 2. & 3. Zeile: F ist eine Selbstabbildung
     return (0 < lipschitz and lipschitz < 1) \
         and (max_F < b) \
         and (min_F > a)
