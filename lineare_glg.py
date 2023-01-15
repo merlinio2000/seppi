@@ -81,6 +81,55 @@ def gauss(A: np.ndarray, b: np.ndarray, pretty_print: bool=True) -> tuple[np.nda
     return A, det_A, x
 
 
+def RLP_zerlegung(A: np.ndarray, vertauschen: bool = True) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    RLP Zerlegung (optional ohne Vertauschen = RL-Zerlegung)
+    Lösbar als:
+    Ax = b <=> LRx = Pb
+    -> Ly = Pb
+    -> Rx = y
+
+    Parameters:
+        A: n x n Matrix zu zerlegen
+        vertauschen = True: ob zeilenvertauschen erlaubt ist, 
+                    falls False entspricht P der Einheitsmatrix
+    Returns:
+        R: rechts obere Dreiecksmatrix
+        L: Eliminierungsfaktoren
+        P: Permutationsmatrix(Zeilentausch)
+    """
+    assert_square(A)
+ 
+    A = A.astype(np.float64)
+    n = A.shape[0]
+    L = np.zeros_like(A)
+    R = A.copy() 
+    P = np.eye(n, n) 
+
+    for i in range(n - 1):
+        pivot_zeile = i + np.argmax(np.abs(A[i:, i])) 
+        if np.isclose(A[pivot_zeile, i], 0):
+            raise Exception('Matrix ist singulär')
+
+        if vertauschen and i != pivot_zeile:
+            R[[i, pivot_zeile], :] = R[[pivot_zeile, i], :]
+            L[[i, pivot_zeile], :] = L[[pivot_zeile, i], :]
+            P[[i, pivot_zeile], :] = P[[pivot_zeile, i], :]
+
+
+        for elim_zeile in range(i + 1, n):
+            eliminations_faktor = R[elim_zeile, i] / R[i, i]
+            L[elim_zeile, i] = eliminations_faktor
+            R[elim_zeile, :] -= eliminations_faktor*R[i, :]
+
+    np.fill_diagonal(L, 1)
+
+    if not np.allclose(L @ R, P @ A):
+        raise Exception('Fehler in der Zerlegung entdeckt')
+
+    return R, L, P
+
+
 def np_RLP_zerlegung(A: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Zur überprüfung ob die RLP Zerlegung richtig gemacht wurde
@@ -272,6 +321,36 @@ class LineareGlgTest(unittest.TestCase):
         self.assertAlmostEqual(det_A, np.linalg.det(A))
         self.assertTrue(np.allclose(x, np.linalg.solve(A, b)))
 
+
+    def test_RLP_SW07_BSP4_7(self):
+        A = np.array([[3, 9, 12, 12],
+                    [-2, -5, 7, 2],
+                    [6, 12, 18, 6],
+                    [3, 7, 38, 14]], dtype=np.float64)
+        
+        R, L, P = RLP_zerlegung(A)
+
+        expected_R = np.array([
+            [6, 12, 18, 6],
+            [0, 3, 3, 9],
+            [0, 0, 28, 8],
+            [0, 0, 0, 3]], dtype=np.float64)
+        expected_L = np.array([
+            [1, 0, 0, 0],
+            [0.5, 1, 0, 0],
+            [0.5, 1/3, 1, 0],
+            [-1/3, -1/3, 0.5, 1],
+        ], dtype=np.float64)
+        expected_P = np.array([
+            [0, 0, 1, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 1],
+            [0, 1, 0, 0]
+        ], dtype=np.float64)
+
+        self.assertTrue(np.allclose(expected_R, R))
+        self.assertTrue(np.allclose(expected_L, L))
+        self.assertTrue(np.allclose(expected_P, P))
 
 
 if __name__ == '__main__':
