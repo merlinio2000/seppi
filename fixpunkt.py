@@ -34,7 +34,7 @@ def newton_iter(f: Callable[[float], float], df: Callable[[float], float], x0: f
 
 def do_banach(interval: tuple[float, float], F: Callable[[float], float], dF: Callable[[float], float]) -> tuple[bool, float | None]:
     """
-    **!ACHTUNG: dieses Resultat stimmt nur wenn F stetig ist im Interval!**
+    **!ACHTUNG: dieses Resultat stimmt nur wenn F stetig & monoton steigend/fallend ist im Interval!**
     Sucht eigenständig nach dem Max/Min von F&dF im interval und überprüft das Resultat mit #check_banach
     Benötigt eine stetige Fixpunktgleichung F(x_k) = x_{k+1} im Interval
     NICHT funktion f(x) = y
@@ -62,7 +62,7 @@ def do_banach(interval: tuple[float, float], F: Callable[[float], float], dF: Ca
 def check_banach(interval: tuple[float, float], min_F: float, max_F: float, max_Fdx: float) -> bool:
     """
     Siehe auch: #do_banach
-    Benötigt eine stetige Fixpunktgleichung F(x_k) = x_{k+1} im Interval
+    Benötigt eine stetige & monotone Fixpunktgleichung F(x_k) = x_{k+1} im Interval
     NICHT funktion f(x) = y
     Parameters:
         interval: Grenzen des Funktionsinterval (min, max)
