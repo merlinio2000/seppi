@@ -5,6 +5,44 @@ import numpy as np
 Helpers
 """
 
+def convert_float(num_str: str, from_base: int, to_base: int, places: int = 10) -> str:
+    num_str = num_str.upper()
+    # supports up to hex
+    base_symbols = '0123456789ABCDEF'
+    ret = ''
+    bef = aft = ''
+
+    if "." not in num_str: 
+        bef = num_str
+    else: 
+        bef, aft = num_str.split(".")
+
+    before_int = int(bef, from_base)
+    before_str = ''
+    while before_int > 0:
+        before_str += base_symbols[before_int%to_base]
+        before_int //= to_base
+
+    ret += before_str[::-1]
+
+    if "." not in num_str: 
+        return ret 
+
+
+    after_int = int(aft, from_base)
+    after_places = int(np.log10(after_int)) + 1
+    after_float = after_int / 10**after_places
+
+    ret += '.'
+
+    for _ in range(places):
+        after_float *= to_base
+        int_part = int(after_float)
+        ret += base_symbols[int_part]
+        after_float -= int_part
+
+    return ret
+
 def rvec(*args) -> np.ndarray:
     """
     Creates a row vector of type float64
@@ -117,6 +155,13 @@ class bcolors:
 import unittest
 
 class UtlTest(unittest.TestCase):
+    def test_convert_HS2014_A1b(self):
+        x = np.sqrt(3)
+
+        binary = convert_float(str(x), 10, 2, places=6)
+
+        self.assertEqual(binary, '1.101110')
+
     def test_cvec(self):
         tvec = cvec(1,2)
 
