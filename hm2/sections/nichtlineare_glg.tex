@@ -13,11 +13,12 @@ auch multivariat gennant, hier nur skalarwertige Funktionen (keine Komplexen Zah
 
 für vektorwertige funktionen
 
-$$\vec{f}(x_1, ..., x_n) =
+$$
+	\vec{f}(x_1, ..., x_n) =
 	\begin{pmatrix}
 		y_1 = f_1(x_1, ..., x_n) \\
 		\hdots                   \\
-		y_m = f_m(x_m, ..., x_m) \\
+		y_m = f_m(x_1, ..., x_n) \\
 	\end{pmatrix}
 $$
 
@@ -38,6 +39,10 @@ Interpretieren als $z = f(x, y)$
 
 
 
+
+
+
+
 \subsection{Partielle Ableitungen}
 
 Nur eine der Variablen wird abgeleitet, der Rest als Konstante behandelt.
@@ -52,11 +57,13 @@ betrachten):
 $$
 	\frac{\partial f}{\partial x} =
 	\lim \limits_{\Delta x \to 0} \frac{f(x + \Delta x, y) - f(x,y)}{\Delta x} \\
-
-	\begin{align*}
-		f(x, y)                       & = 3xy^3 + 10x^2y + 5y + 3y * sin(5xy) \\
-		\frac{\partial f}{\partial x} & =
-		3 * 1 * y^3 + 10 * 2x + 0 + 3y * cos(5xy) * 5 * 1 * y
-	\end{align*}
 $$
+\begin{align*}
+	f(x, y)                       & = 3xy^3 + 10x^2y + 5y + 3y * sin(5xy) \\
+	\frac{\partial f}{\partial x} & =
+	3 * 1 * y^3 + 10 * 2x + 0 + 3y * cos(5xy) * 5 * 1 * y
+\end{align*}
+
+
+
 

@@ -1,0 +1,45 @@
+\section{Linearisierung}
+
+\subsubsection{Repetition Tangentengleichung}
+
+Dient als Annäherung für $f(x)$ in der Nähe von $x_0$ (Linearisierung): \\
+$g(x) = f(x_0) + f'(x_0)(x - x_0)$
+
+
+
+
+\subsection{Jacobi-Matrix}
+Sozusagen wie Tangentengleichung aber für mehrere Variablen
+$$\vec{y} = \vec{f}(\vec{x}) =
+	\begin{pmatrix}
+		y_1 = f_1(x_1, ..., x_n) \\
+		\hdots                   \\
+		y_m = f_m(x_1, ..., x_n) \\
+	\end{pmatrix}
+$$
+
+Die Jacobi-Matrix enthält sämtliche Partielle Ableitungen 1. Ordnung von $\vec{f}$. \\
+Auf jeder Spalte bleibt die funktion $f_j$ die gleiche und in den
+Zeilen $x_i$ $\rightarrow$ $\frac{\partial f_j}{\partial x_i}$
+
+\scalemath{1.4}{
+	\vec{Df}(x) =
+	\begin{pmatrix}
+		\frac{\partial f_1}{\partial x_1}(x) & \frac{\partial f_1}{\partial x_2}(x) & \vdots & \frac{\partial f_1}{\partial x_n} \\
+		\frac{\partial f_2}{\partial x_1}(x) & \frac{\partial f_2}{\partial x_2}(x) & \vdots & \frac{\partial f_2}{\partial x_n} \\
+		\hdots                               & \hdots                               & \ddots & \hdots                            \\
+		\frac{\partial f_m}{\partial x_1}(x) & \frac{\partial f_m}{\partial x_2}(x) & \vdots & \frac{\partial f_m}{\partial x_n} \\
+	\end{pmatrix}
+}
+
+
+
+
+
+
+
+
+
+
+
+
