@@ -120,11 +120,14 @@ via Substitution als lineares Gleichungsystem aufgefasst.
 
 
 
-\subsection{Quadratisch-konvergentes Newton-Verfahren}
+\subsection{Quadratisch-konvergentes Newton-Verfahren für Systeme}
 % TODO code
 
 Gesucht: Nullstellen von $\v f : \R^n \to \R^n$ mit Startvektor $\v x^{(0)}$
-Nahe der Nullstelle.
+Nahe der Nullstelle.\\
+\textcolor{red}{es kann passieren, dass das Newton-Verfahren Statt einer Nullstelle
+	ein lokales Minimum $x_{min} != 0$ findet, in diesem Fall ist $Df(x_{min})$
+	aber immer nicht regulär.}
 
 \textcolor{blue}{
 	\Large{
@@ -141,12 +144,72 @@ Nahe der Nullstelle.
 \subsubsection{mögliche Abbruchkriterien}
 
 \begin{itemize}
-    \item $n \ge n_{max}, \, n_{max} \in \N$
-    \item $|| x^{(n+1)} - x^{(n)} || \le \epsilon 
-        \qquad \leftrightarrow \qquad || \delta^{(n)} || \le \epsilon$
-    \item $|| x^{(n+1)} - x^{(n)} || \le \epsilon * || x^{(n+1)} ||$
-    \item $|| \v f(x^{(n+1)}) || \le \epsilon$
+	\item $n \ge n_{max}, \, n_{max} \in \N$
+	\item $|| x^{(n+1)} - x^{(n)} || \le \epsilon
+		      \qquad \leftrightarrow \qquad || \delta^{(n)} || \le \epsilon$
+	\item $|| x^{(n+1)} - x^{(n)} || \le \epsilon * || x^{(n+1)} ||$
+	\item $|| \v f(x^{(n+1)}) || \le \epsilon$
 \end{itemize}
 
+\subsubsection{Konvergenz}
 
+Das Newton-Verfahren konvergiert quadratisch für nahe genug an einer Nullstelle
+$\v x$ liegende Startvektoren, wenn $D\v f(\v x)$ regulär und $\v f$ dreimal
+stetig differenzierbar ist.
+
+
+
+
+
+
+
+\subsection{Vereinfachtes Newton-Verfahren für Systeme}
+% TODO code
+
+Gesucht: Nullstellen von $\v f : \R^n \to \R^n$ mit Startvektor $\v x^{(0)}$
+Nahe der Nullstelle.\\
+
+Der Unterschied zum Quadratisch-konvergenten Newton-Verfahren liegt darin, dass
+nur einmal die Jacobi-Matrix für den Startvektor berechnet werden muss (rot)
+$\rightarrow$ weniger Aufwand aber konvergiert langsamer (linear).
+
+\textcolor{blue}{
+	\Large{
+		für $n = 0, 1,...$:
+		\begin{enumerate}
+			\item Berechne $\delta^{(n)}$ als Lösung des linearen Gleichungsystems
+			      $$ D\v{f}( \textcolor{red}{ \v x^{(0)} } ) \delta^{(n)} = - \v f(\v x^{(n)}) $$
+			\item Setze
+			      $$ \v x^{(n+1)} = \v x^{(n)} + \delta^{(n)} $$
+		\end{enumerate}
+	}
+}
+
+
+
+\subsection{Gedämpftes Newton-Verfahren}
+% TODO code
+
+Die Idee ist bei jedem Iterationsschritt zu überprüfen ob es sich um eine
+Verbesserung handelt und falls nicht, es stattdessen mit einem gedämpften Schritt
+zu versuchen.
+
+Die gewählte Dämpfungsgrösse $k_{max}$ ist stark vom Problem abhängig.
+\textcolor{green}{$k_{max} = 4$ ist ein vernünftiger Standard Wert.}
+
+
+\textcolor{blue}{
+	\Large{
+		für $n = 0, 1,...$:
+		\begin{enumerate}
+			\item Berechne $\delta^{(n)}$ als Lösung des linearen Gleichungsystems
+			      $$ D\v{f}(\v x^{(n)}) \delta^{(n)} = - \v f(\v x^{(n)}) $$
+			\item Finde das minimale $k \in {0,1,...,k_{max}}$ mit
+			      $$ || \v f(x^{(n)}) + \frac{\delta^{(n)}}{2^k} ||_2
+				      < || \v f(x^{(n)}) ||_2  $$
+			\item Setze (falls kein minimales $k \rightarrow k = 0$)
+			      $$ \v x^{(n+1)} = \v x^{(n)} + \frac{ \delta^{(n)} }{ 2^{k} } $$
+		\end{enumerate}
+	}
+}
 
