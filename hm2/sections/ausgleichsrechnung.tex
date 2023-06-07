@@ -79,4 +79,54 @@ hoch instabil. Als Alternative kann stattdessen stückweise interpoliert werden.
 
 \includegraphics[scale=0.3]{interpol-split-poly-bsp}
 
+\begin{itemize}
+    \item hier stören die Knicke(Ableitung verschieden von beiden Seiten) an 
+        den Übergängen
+    \item die Spline-Interpolation versucht durch Polynome niederen Grades zu 
+        interpolieren und damit Schwingungen unterdrücken $\rightarrow$ keine Knicke
+    \item Polynome müssen dazu an den Messpunkten nicht nur selben Funktionswert
+        sondern auch selbe Ableitung haben (1. und 2. Ableitung).
+\end{itemize}
+
+Man kann so für jedes Interval $[x_i, x_{i+1}], \quad i = 0,1,2,...,n-1$ genau 
+ein Polynom $s_i$ ansetzen ($i$ Bezeichnet die Nummer des Intervalls).
+
+Dieses Polynom muss folgende Bedingungen erfüllen:
+{\large
+\begin{description}[itemsep=1mm]
+    \item[Interpolation] $s_i(x_i) \, = \, y_i \quad,
+        \quad s_{i+1}(x_{i+1}) \, = \, y_{i+1}$
+    \item[stetiger Übergang] $s_i(x_{i+1}) \, = \, s_{i+1}(x_{i+1}) \quad,
+        \quad s_{i+1}(x_{i+2}) \, = \, s_{i+2}(x_{i+2})$
+    \item[keine Knicke] $s'_i(x_{i+1}) = s'_{i+1}(x_{i+1}) \quad,
+        \quad s'_{i+1}(x_{i+2}) = s'_{i+2}(x_{i+2})$
+    \item[gleiche Krümmung] $s''_i(x_{i+1}) \, = \, s''_{i+1}(x_{i+1}) \quad,
+        \quad s''_{i+1}(x_{i+2}) \, = \, s''_{i+2}(x_{i+2})$
+    \item[Zusatzbedingungen] Damit es genug Gleichungen für ein reguläres System
+        sind müssen noch Zusatzbediungen gesetzt werden, diese unterscheiden sich
+        je nach Art des gewählten Splines
+\end{description}
+}
+
+\subsubsection{natürliche kubische Splinefunktion}
+Gegeben $n+1$ Stützpunkte $(x_i, y_i)$ mit monoton aufsteigenden
+Stützstellen $x_0 < x_1 < ... < x_n \quad | \quad \mathrm{und}\; n \ge 2$
+Gesucht natürliche kubische Splinefunktion $S(x)$, in jedem Intervall $[x_i, x_{i+1}]\, ,\,i=0,1,...,n-1$
+
+
+
+Beispiel (6.5 in Folien):\\
+\includegraphics[scale=0.3]{interpol-spline-bsp-ausgang}\\
+\includegraphics[scale=0.3]{interpol-spline-bsp-ansatz}\\
+\includegraphics[scale=0.3]{interpol-spline-bsp-bedingungen1}\\
+\includegraphics[scale=0.3]{interpol-spline-bsp-bedingungen2}\\
+\includegraphics[scale=0.3]{interpol-spline-bsp-zusatzbedingungen}\\
+
+
+
+
+
+
+
+
 
