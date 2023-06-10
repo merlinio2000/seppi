@@ -228,13 +228,57 @@ Parameter $\lambda$ treten verwoben in der Funktion $f$ auf
 
 $$f = f(\lambda_1, ..., \lambda_m, x)$$
 
+\subsubsection{nichtlineare Ausgleichsprobleme}
+
 \includegraphics[scale=0.34]{ausgleich-nichtlin-allg-ausgleichprob}
 
 \includegraphics[scale=0.31]{ausgleich-nichtlin-allg-ausgleichprob2}
 
 
 
+\subsubsection{Quadratmittelproblem}
 
+Gegeben Funktion $\v g: \R^m \to \R^n$ und zugehöriges Fehlerfunktional
+$E: \R^m \to \R \; = || \v g(x) ||_2^2$ \\
+Das Problem $\v x \in \R^m$ zu finden für den $E(x)$ minimal wird heisst
+Quadratmittelproblem.
+
+\textcolor{cyan}{nichtlineare Ausgleichsprobleme sind Quadratmittelprobleme
+	mit $\v g(x) = \v g(\lambda)$.}
+Als Fehlerfunktional dient die differenz zwischen dem tatsächlichen Wert und dem
+Wert der Funktion $\v f$.
+
+	{\large
+		$$\v g(\v \lambda) = \v y - \v f(\v \lambda), \v y \in \R^n, \v \lambda \in \R^m$$
+	}
+
+
+
+\subsubsection{Gauss Newton-Verfahren}
+% TODO code
+
+\begin{itemize}
+	\item Kombination aus linearer Ausgleichsrechnung und Newton-Verfahren
+	\item In $||\v g(\lambda) ||_2^2$ wird $\v g(\lambda)$ ersetzt durch folgende
+	      Linearkombination
+		      {\large
+			      $$\v g(\lambda) \approx \v  g(\lambda^{(0)}) + D\v g(\lambda^{(0)}) * (\lambda
+				      - \lambda^{(0)})$$
+		      }
+	\item $Dg(..)$ entspricht hierbei der Jacobi-Matrix von $\v g$
+    \item Durch folgende Substitutionen haben wir die Form einer linearen Ausgleichsrechnung
+        $E(\lambda) = ||y - A \delta||_2^2$
+        \begin{description}
+            \item[$y$] $= \v g(\lambda^{(0)})$
+            \item[$A$] $= -D\v g(\lambda^{(0)})$
+            \item[$\delta$] $= \lambda - \lambda^{(0)}$
+        \end{description}
+\end{itemize}
+
+
+
+% TODO replace with custom copy
+\includegraphics[width=\linewidth]{ausgleich-nichtlin-gauss-newton-algo}
 
 
 
