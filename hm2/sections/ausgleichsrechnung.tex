@@ -248,9 +248,9 @@ Quadratmittelproblem.
 Als Fehlerfunktional dient die differenz zwischen dem tatsächlichen Wert und dem
 Wert der Funktion $\v f$.
 
-	{\large
+{\large
 		$$\v g(\v \lambda) = \v y - \v f(\v \lambda), \v y \in \R^n, \v \lambda \in \R^m$$
-	}
+}
 
 
 
@@ -266,19 +266,87 @@ Wert der Funktion $\v f$.
 				      - \lambda^{(0)})$$
 		      }
 	\item $Dg(..)$ entspricht hierbei der Jacobi-Matrix von $\v g$
-    \item Durch folgende Substitutionen haben wir die Form einer linearen Ausgleichsrechnung
-        $E(\lambda) = ||y - A \delta||_2^2$
-        \begin{description}
-            \item[$y$] $= \v g(\lambda^{(0)})$
-            \item[$A$] $= -D\v g(\lambda^{(0)})$
-            \item[$\delta$] $= \lambda - \lambda^{(0)}$
-        \end{description}
+	\item Durch folgende Substitutionen haben wir die Form einer linearen Ausgleichsrechnung
+	      $E(\lambda) = ||y - A \delta||_2^2$
+	      \begin{description}
+		      \item[$y$] $= \v g(\lambda^{(0)})$
+		      \item[$A$] $= -D\v g(\lambda^{(0)})$
+		      \item[$\delta$] $= \lambda - \lambda^{(0)}$
+	      \end{description}
 \end{itemize}
 
 
 
-% TODO replace with custom copy
-\includegraphics[width=\linewidth]{ausgleich-nichtlin-gauss-newton-algo}
+{\large
+\begin{enumerate}
+	\item[] \textcolor{cyan}{mögliches Abbruchkriterium: $||\delta^{(k)}||_2 < TOL$}
+	\item Startvektor $\v \lambda^{(0)}$ in der Nähe des Minimums des
+	      Fehlerfunktionals $E$ der Ausgleichsfunktion $f(\lambda)$
+	\item berechne Funktion $g(\lambda) = y - f(\lambda)$
+	\item und zugehörige Jacobi-Matrix $Dg(\lambda)$
+	\item Für $k = 0,1,...$
+	      \begin{enumerate}
+		      \item $\delta^{(k)}$ aus linearen Ausgleichsproblems (Substitutionen
+		            von vorherigem Abschnitt)
+		            $$min || g(\lambda^{(k)}) + Dg(\lambda^{(k)}) * \delta^{(k)} ||_2^2$$
+		            d.h. konkret wieder wie linear \textcolor{orange}{ACHTUNG Unterschied
+			            resultat ist hierbei aber nur $\delta^{(k)}$ NICHT direkt $\lambda$
+			            wie bei linear. Das resultierende $\lambda^{(k+1)}$ wird im
+			            Schritt c) berechnet}
+		            $$A^T A \delta^{(k)} = A^T y$$
+
+		      \item stabilere Berechnung durch Verwendung von QR:
+		            \begin{enumerate}[series=gauss-newton-inner]
+			            \item $$Dg(\lambda^{(k)}) = Q^{(k)} R^{(k)}$$
+			            \item auflösen nach $\delta^{(k)}$
+			                  $$R^{(k)} \delta^{(k)} = -Q^{(k) T} g(\lambda^{(k)})$$
+		            \end{enumerate}
+		      \item erhalte $\lambda$ für nächsten Iterationsschritt
+		            $$\lambda^{(k+1)} = \lambda^{(k)} + \delta^{(k)}$$
+	      \end{enumerate}
+\end{enumerate}
+}
+
+
+
+\subsubsection{gedämpftes Gauss-Newton-Verfahren}
+% TODO code
+
+Konvergiert in der Regel für einen grösseren Bereich an Startvektoren, immer noch
+keine Garantie für Konvergenz.
+
+\textcolor{cyan}{Mögliches Abbruchkriterium (keine Garantie für richtige Lösung)}\\
+{\large
+$$|| \frac{\delta^{(k)}}{2^P} ||_2 < TOL$$
+}
+
+Im regulären Gauss-Newton-Verfahren kommt unter b) noch ein zusätzlicher Dritter schritt.
+
+	{\large
+		\begin{enumerate}
+			\item[4.]
+				\begin{enumerate}
+					\item[b)]
+						\begin{enumerate}[resume=gauss-newton-inner]
+							\item Finde minimales $p \in [0, p_max]$ mit: (sonst $p = 0$)
+							      $$||g(\iterk\lambda + \frac{\iterk\delta}{2^P})||_2^2 < ||g(\iterk\lambda)||_2^2$$
+						\end{enumerate}
+					\item[c)] Berechnung von $\iter{\lambda}{k+1}$ wird auch dementsprechend angepasst
+						$$\iter\lambda{k+1} = \iterk\lambda + \frac{\iterk\delta}{2^P}$$
+				\end{enumerate}
+		\end{enumerate}
+	}
+
+
+
+\subsubsection{Beispiel 7.10 (bis zum ersten Iterationsschritt)}
+
+
+\includegraphics[scale=0.28]{ausgleich-nichtlin-gauss-newton-bsp610-1}\\
+\includegraphics[scale=0.28]{ausgleich-nichtlin-gauss-newton-bsp610-2}\\
+\includegraphics[scale=0.28]{ausgleich-nichtlin-gauss-newton-bsp610-3}\\
+...weiter mit Algorithmus
+
 
 
 
