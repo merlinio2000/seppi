@@ -287,3 +287,65 @@ Die Euler-Verfahren können auch so dargestellt werden
 
 
 
+
+\subsection{Systeme von Differentialgleichungen}
+
+DGL von k-ter Ordnung auf ein System von DGL 1. Ordnung
+zurückführen.
+
+
+Anhand Beispiel: (8.9 im Skript)
+
+\includegraphics[scale=0.33]{diff-systeme-bsp-1}\\
+\includegraphics[scale=0.33]{diff-systeme-bsp-2}\\
+\includegraphics[scale=0.33]{diff-systeme-bsp-3}\\
+\includegraphics[scale=0.33]{diff-systeme-bsp-4}\\
+\includegraphics[scale=0.33]{diff-systeme-bsp-5}
+
+\begingroup
+\large
+
+$$ \v f(x, \v z) =
+	\begin{pmatrix}
+		0  & 1  & 0  \\
+		0  & 0  & 1  \\
+		-5 & -8 & -6
+	\end{pmatrix} \v z
+	+ \begin{pmatrix} 0 \\ 0 \\ 10e^{-x} \end{pmatrix}
+$$
+
+
+So wurde aus einer DGL 3. Ordnung $\rarr$ drei DGL 1. Ordnung mit folgendem
+Anfangswertproblem 1. Ordnung
+$$\v{z'} = \v f(x, \v z) \; \mathrm{mit} \; \v z(0) =
+	\begin{pmatrix} y(0) \\ y'(0) \\ y''(0) \end{pmatrix}
+$$
+\endgroup
+
+
+
+\subsubsection{Lösen eines DGL Systemes}
+
+Identisch zu bekannten Runge-Kutta verfahren, einfach alles Vektoren.
+(Hochgestellter Index in Klammern wieder für Iterationen weil tiefe für
+einzelne Vektorelemente)
+
+
+Beispiel Euler: für $i = 0,1,..,n-1$:
+\begin{align*}
+	x_{i+1}          & = x_i + h                     \\
+	\v k_1           & = \v f(x_i, \iter{\v y}{i})   \\
+	\iter{\v y}{i+1} & = \iter{\v y}{i} + h * \v k_1
+\end{align*}
+
+
+mit:
+\begin{multicols}{2}
+	$$\v y(x) = \begin{pmatrix} y_1(x) \\ \vdots \\ y_k(x) \end{pmatrix}$$
+	$$\v{y'}(x) = \begin{pmatrix} y'_1(x) \\ \vdots \\ y'_k(x) \end{pmatrix}$$
+
+	\columnbreak
+
+	$$\v f(x, \v y(x)) = \begin{pmatrix} f_1(x, \v y(x)) \\ \vdots \\ f_1(x, \v y(x)) \end{pmatrix}$$
+\end{multicols}
+
