@@ -164,4 +164,81 @@ Für $i = 0,1,..,n-1$:
 
 \subsection{Fehlerordnung}
 
+Bemerkungen:
+\begin{itemize}
+    \item bei unseren Verfahren ist Konsistenzordnung = Konvergenzordnung
+    \item durch Verkleinern von $h$ kann der Fehler theoretisch beliebig klein
+        werden aber dann überwiegen Rundungsfehler
+    \item das klassiche Euler-Verfahren hat $p=1$, Mittelpunkt \& modifiziertes
+        $p=2$
+    \item vierstufiges Runge-Kutta hat $p=4$
+\end{itemize}
+
+\subsubsection{lokaler Fehler/Konsistenzordnung}
+
+Gegeben:
+\begin{itemize}
+	\item DGL $y'(x) = f(x, y(x))$ mit Anfangsbediung $y(x_i) = y_i$
+	\item Exakte Lösung $y(x)$
+	\item Näherungswert $y_{i+1}$ für $y(x_{i+1})$ aus numerischem
+	      Verfahren mit Schrittweite $h$
+\end{itemize}
+
+
+Der \textcolor{cyan}{lokale Fehler nach einer Iteration} ist dann definiert als:
+$$\varphi(x_i, h) = y(x_{i+1}) - y_{i+1}$$
+
+\begingroup
+Ein numerisches Verfahren hat \textcolor{cyan}{Konsistenzordnung $p$} falls:
+\large
+\begin{multicols}{2}
+	$$|\varphi(x_i, h)| \le C * h^{p+1}
+    \vspace{\fill} 
+    $$
+    \columnbreak
+    \begin{itemize}
+        \item für genügend kleine Schrittweite $h$
+        \item Konstante $C > 0$ hängt von DGL ab
+        \item \textcolor{cyan}{wird $h$ halbiert, geht der lokale Fehler
+            um Faktor $(\frac{1}{2})^{p+1}$ runter}
+    \end{itemize}
+\end{multicols}
+\endgroup
+
+Da $C$ konstant $\rarr$ Fehler ist rein von gewählter Schrittweite abhängig
+und nimmt mit $h^{p+1}$ rasant ab für Verfahren mit 
+\textcolor{orange}{hoher Fehlerordnung (GUT)}
+
+
+\subsubsection{globaler Fehler/Konvergenzordnung}
+
+
+Gegeben:
+\begin{itemize}
+	\item DGL $y'(x) = f(x, y(x))$ mit Anfangsbediung $y(x_i) = y_i$
+	\item Exakte Lösung $y(x)$
+	\item Näherungswert $y_n$ für $y(x_n=x_0 + n h)$ aus numerischem
+	      Verfahren mit Schrittweite $h$
+\end{itemize}
+
+Der \textcolor{cyan}{globale Fehler nach $n$ Iterationen} ist dann definiert als:
+$$\varphi(x_i, h) = y(x_n) - y_n$$
+
+Ein Verfahren hat \textcolor{cyan}{Konvergenzordnung $p$} falls:
+$$|y(x_n) - y_n| \le C * h^p$$
+
+
+
+
+
+
+
+
+
+
+\subsection{Runge-Kutta Verfahren}
+
+Wie Euler-Verfahren aber nochmehr $k_i$ Zwischenpunkte für die Steigung.
+
+
 
