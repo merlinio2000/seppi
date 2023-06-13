@@ -166,12 +166,12 @@ Für $i = 0,1,..,n-1$:
 
 Bemerkungen:
 \begin{itemize}
-    \item bei unseren Verfahren ist Konsistenzordnung = Konvergenzordnung
-    \item durch Verkleinern von $h$ kann der Fehler theoretisch beliebig klein
-        werden aber dann überwiegen Rundungsfehler
-    \item das klassiche Euler-Verfahren hat $p=1$, Mittelpunkt \& modifiziertes
-        $p=2$
-    \item vierstufiges Runge-Kutta hat $p=4$
+	\item bei unseren Verfahren ist Konsistenzordnung = Konvergenzordnung
+	\item durch Verkleinern von $h$ kann der Fehler theoretisch beliebig klein
+	      werden aber dann überwiegen Rundungsfehler
+	\item das klassiche Euler-Verfahren hat $p=1$, Mittelpunkt \& modifiziertes
+	      $p=2$
+	\item vierstufiges Runge-Kutta hat $p=4$
 \end{itemize}
 
 \subsubsection{lokaler Fehler/Konsistenzordnung}
@@ -193,20 +193,20 @@ Ein numerisches Verfahren hat \textcolor{cyan}{Konsistenzordnung $p$} falls:
 \large
 \begin{multicols}{2}
 	$$|\varphi(x_i, h)| \le C * h^{p+1}
-    \vspace{\fill} 
-    $$
-    \columnbreak
-    \begin{itemize}
-        \item für genügend kleine Schrittweite $h$
-        \item Konstante $C > 0$ hängt von DGL ab
-        \item \textcolor{cyan}{wird $h$ halbiert, geht der lokale Fehler
-            um Faktor $(\frac{1}{2})^{p+1}$ runter}
-    \end{itemize}
+		\vspace{\fill}
+	$$
+	\columnbreak
+	\begin{itemize}
+		\item für genügend kleine Schrittweite $h$
+		\item Konstante $C > 0$ hängt von DGL ab
+		\item \textcolor{cyan}{wird $h$ halbiert, geht der lokale Fehler
+			      um Faktor $(\frac{1}{2})^{p+1}$ runter}
+	\end{itemize}
 \end{multicols}
 \endgroup
 
 Da $C$ konstant $\rarr$ Fehler ist rein von gewählter Schrittweite abhängig
-und nimmt mit $h^{p+1}$ rasant ab für Verfahren mit 
+und nimmt mit $h^{p+1}$ rasant ab für Verfahren mit
 \textcolor{orange}{hoher Fehlerordnung (GUT)}
 
 
@@ -239,6 +239,51 @@ $$|y(x_n) - y_n| \le C * h^p$$
 \subsection{Runge-Kutta Verfahren}
 
 Wie Euler-Verfahren aber nochmehr $k_i$ Zwischenpunkte für die Steigung.
+
+Gegeben Anfangswertproblem:
+$$\frac{dy}{dx} = f(x, y(x)) \quad \mathrm{mit} \; y(a) = y_0$$
+
+
+\subsubsection{klassisches vierstufiges Runge-Kutta Verfahren}
+
+
+\begingroup
+\addtolength{\jot}{0.5em}
+\large
+Für $i = 0,1,..,n-1$:
+\begin{align*}
+	x_{h/2} & = x_i + h/2                                       \\
+	k_1     & = f(x_i, y_i)                                     \\
+	k_2     & = f(x_i + h/2, \; y_i + h/2 * k_1)                \\
+	k_3     & = f(x_i + h/2, \; y_i + h/2 * k_2)                \\
+	k_4     & = f(x_i + h, \; y_i + h * k_3)                    \\
+	x_{i+1} & = x_i + h                                         \\
+	y_{i+1} & = y_i + h * \frac{1}{6}(k_1 + 2k_2 + * 2k_3 + k4)
+\end{align*}
+\endgroup
+
+
+\subsubsection{allgemeines s-stufiges Runge-Kutta Verfahren}
+
+
+\includegraphics[scale=0.33]{diff-runge-kutta-allg-algo}
+
+Die Koeffizienten können wie folgt in einer Matrix notiert werden
+
+\begin{center}
+	\includegraphics[scale=0.33]{diff-runge-kutta-allg-koeff}
+\end{center}
+
+
+Die Euler-Verfahren können auch so dargestellt werden
+
+\begin{minipage}{0.35\linewidth}
+	\includegraphics[scale=0.33]{diff-runge-kutta-koeff-bsp-1}
+\end{minipage}
+\hfill
+\begin{minipage}{0.55\linewidth}
+	\includegraphics[scale=0.33]{diff-runge-kutta-koeff-bsp-2}
+\end{minipage}
 
 
 
