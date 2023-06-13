@@ -69,25 +69,99 @@ spezifische Lösung.
 	\item im Einzelschrittverfahren wird die nächste stelle $x_{i+1}$ Anhand
 	      der bekannten Lösung für $x_i \; | \; (x_0 = a, y(x_0) = y_0)$ berechnet
 	      \begin{align*}
-              x_{i+1} &= x_i + h\\
-              y_{i+1} &= y_i + \mathrm{Steigung} * h
+		      x_{i+1} & = x_i + h                     \\
+		      y_{i+1} & = y_i + \mathrm{Steigung} * h
 	      \end{align*}
 
-          Mit der Steigung als eine numerische Näherung für 
-          $y'(x) \; | \; x \in [x_i, x_{i+1}]$
-    \item Die verschiedenen Einzelschrittverfahren unterscheiden sich nur
-        in der Bestimmung der Steigung
+	      Mit der Steigung als eine numerische Näherung für
+	      $y'(x) \; | \; x \in [x_i, x_{i+1}]$
+	\item Die verschiedenen Einzelschrittverfahren unterscheiden sich nur
+	      in der Bestimmung der Steigung
 \end{itemize}
 
 
 
 \subsection{Euler-Verfahren}
+% TODO code
 
 
-\subsubsection{Klassisches Euler-Verfahren}
+\subsubsection{klassisches Euler-Verfahren}
+
+Gegeben Anfangswertproblem:
+$$\frac{dy}{dx} = f(x, y(x)) \quad \mathrm{mit} \; y(a) = y_0$$
+
+
+\begingroup
+\addtolength{\jot}{0.5em}
+\large
+
+Algorithmus:
+
+\begin{multicols}{2}
+	Für $i = 0,1,..,n-1$:
+	\begin{align*}
+		x_{i+1} & = x_i + h       \\
+		k_1     & = f(x_i, y_i)   \\
+		y_{i+1} & = y_i + h * k_1
+	\end{align*}
+
+	\columnbreak
+
+	Wobei:
+	\begin{align*}
+		x_0 & = a       \\
+		x_i & = a + i*h \\
+		h   & = (b-a)/n
+	\end{align*}
+	\vspace{\fill}
+\end{multicols}
+\endgroup
+
+
+\subsubsection{Mittelpunkt Euler-Verfahren}
+
+Anstatt das wie beim klassischen direkt die Steigung am Punkt zu $x_i, y_i$ nehmen
+wird die Steigung im Mittelpunkt $x_i + h/2$ verwendet.
+
+
+\begingroup
+\addtolength{\jot}{0.5em}
+\large
+Algorithmus:
+
+Für $i = 0,1,..,n-1$:
+\begin{align*}
+	x_{h/2} & = x_i + h/2                        \\
+	k_1     & = f(x_i, y_i)                      \\
+	k_2     & = f(x_i + h/2, \; y_i + h/2 * k_1) \\
+	x_{i+1} & = x_i + h                          \\
+	y_{i+1} & = y_i + h * k_2
+\end{align*}
+\endgroup
+
+
+\subsubsection{modifiziertes Euler-Verfahren}
+
+Unterschied hier ist das der Durchschnitt der Steigungen an $x_i$ und $x_{i+1}$
+verwendet wird.
+
+\begingroup
+\addtolength{\jot}{0.5em}
+\large
+Algorithmus:
+
+Für $i = 0,1,..,n-1$:
+\begin{align*}
+	k_1     & = f(x_i, y_i)                                \\
+	k_2     & = f(x_i + h, \; y_i + h * k_1)               \\
+	x_{i+1} & = x_i + h                                    \\
+	y_{i+1} & = y_i + \frac{h}{2} k_1 + \frac{h}{2} k_1    \\
+	        & = y_i + h * \left(\frac{k_1 + k_2}{2}\right)
+\end{align*}
+\endgroup
 
 
 
-
+\subsection{Fehlerordnung}
 
 
