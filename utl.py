@@ -1,6 +1,31 @@
 import numbers
 import numpy as np
 
+
+"""
+Abbruchkriterien
+"""
+
+class AbbruchKriteriumHandler:
+    ''' 
+    Interface für generisches überprüfen des Abbruchkriteriums
+    Returns:
+        bool: true=weitermachen, false=abbruch
+    '''
+    def __call__(self, curr_i: int, curr_x: np.ndarray, delta: np.ndarray) -> bool:
+        raise Exception('implementation required')
+
+class AbbruchKriteriumNIterationen(AbbruchKriteriumHandler):
+    ''' 
+    AbbruchKriteriumHandler der nach n Iterationen abbricht
+    (i = n-1 weil i bei 0 beginnt)
+    '''
+    def __call__(self, curr_i: int, curr_x: np.ndarray, delta: np.ndarray) -> bool: 
+        return curr_i <= self.n
+
+    def __init__(self, n: int):
+        self.n = n
+
 """
 Helpers
 """

@@ -1,5 +1,6 @@
 import sympy as sp
 import utl
+from utl import AbbruchKriteriumHandler
 import numpy as np
 from typing import Callable
 
@@ -19,7 +20,8 @@ def scipy_jacobi_bsp():
     f = sp.Matrix([f1, f2, f3])
     X = sp.Matrix([x, y, z])
     Df = f.jacobian(X)
-    print(f'Jacobi-Matrix b: {Df}')
+    print(f'Jacobi-Matrix:')
+    sp.pprint(Df)
 
 
 def scipy_linearisieren_bsp():
@@ -39,7 +41,8 @@ def scipy_linearisieren_bsp():
     f = sp.Matrix([f1, f2, f3])
     X = sp.Matrix([x, y, z])
     Df = f.jacobian(X)
-    print(f'Jacobi-Matrix: {Df}')
+    print(f'Jacobi-Matrix:')
+    sp.pprint(Df)
 
     # Linearisierung
     f0 = f.subs([(x, x0[0]), (y, x0[1]), (z, x0[2])])
@@ -55,13 +58,8 @@ def scipy_linearisieren_bsp():
 
     g = f0 + Df0 * p
     g = g.evalf()
-    print(f'g: {g}')
-
-
-class AbbruchKriteriumHandler:
-    ''' Interface für generisches überprüfen des Abbruchkriteriums '''
-    def should_continue(self, curr_i: int, curr_x: np.ndarray, delta: np.ndarray) -> bool:
-        raise Exception('implementation required')
+    print(f'g:')
+    sp.pprint(g)
 
 
 def newton_systeme(x0: np.ndarray, Df:  Callable[[np.ndarray], np.ndarray], \
@@ -92,7 +90,7 @@ def newton_systeme(x0: np.ndarray, Df:  Callable[[np.ndarray], np.ndarray], \
 
     delta = np.zeros_like(x0)
 
-    while krit.should_continue(curr_i=i, curr_x=x_curr, delta=delta):
+    while krit(curr_i=i, curr_x=x_curr, delta=delta):
         A = Df(x_curr)
         utl.assert_dimensions_match(A, x0)
         c = -f(x_curr)
