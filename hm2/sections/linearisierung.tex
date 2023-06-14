@@ -204,7 +204,7 @@ Die gewählte Dämpfungsgrösse $k_{max}$ ist stark vom Problem abhängig.
 			\item Berechne $\delta^{(n)}$ als Lösung des linearen Gleichungsystems
 			      $$ D\v{f}(\v x^{(n)}) \delta^{(n)} = - \v f(\v x^{(n)}) $$
 			\item Finde das minimale $k \in {0,1,...,k_{max}}$ mit
-			      $$ || \v f(x^{(n)}) + \frac{\delta^{(n)}}{2^k} ||_2
+			      $$ || \v f(x^{(n)} + \frac{\delta^{(n)}}{2^k}) ||_2
 				      < || \v f(x^{(n)}) ||_2  $$
 			\item Setze (falls kein minimales $k \rightarrow k = 0$)
 			      $$ \v x^{(n+1)} = \v x^{(n)} + \frac{ \delta^{(n)} }{ 2^{k} } $$
