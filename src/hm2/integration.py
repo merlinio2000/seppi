@@ -1,18 +1,19 @@
 import numpy as np
+from ..util import types
 from typing import Tuple
-from ...utl import NPValueToScalarFn
 
-def sum_Rf(x_grenzen: Tuple[float, float], n: int, f: NPValueToScalarFn) -> float:
+def sum_Rf(x_grenzen: Tuple[float, float], n: int, f: types.NPValueToScalarFn) -> float:
     '''
     integriert f nach der summierten Rechteckregel
 
     Parameters:
         x_grenzen: Die untere/obere Grenze des gesuchten Intervalls
-        n: Anzahl stützstellen
+        n: Anzahl stützstellen ZWINGEND INTEGER
         f: Zu integrierende Funktion
     Returns:
         float: Annäherung des Integrals
     '''
+    assert isinstance(n, int) 
 
     a, b = x_grenzen
     a, b = float(a), float(b)
@@ -21,7 +22,7 @@ def sum_Rf(x_grenzen: Tuple[float, float], n: int, f: NPValueToScalarFn) -> floa
     h = abs((b-a)/n)
 
     res = 0.
-    print(f'Summierte Rechteckregel im Intervall [{a}, {b}]')
+    print(f'Summierte Rechteckregel im Intervall [{a}, {b}], h={h}')
 
     for i in range(n):
         x_i = a + i*h
@@ -35,17 +36,18 @@ def sum_Rf(x_grenzen: Tuple[float, float], n: int, f: NPValueToScalarFn) -> floa
 
     return res
 
-def sum_Tf(x_grenzen: Tuple[float, float], n: int, f: NPValueToScalarFn) -> float:
+def sum_Tf(x_grenzen: Tuple[float, float], n: int, f: types.NPValueToScalarFn) -> float:
     '''
     integriert f nach der summierten Trapezregel
 
     Parameters:
         x_grenzen: Die untere/obere Grenze des gesuchten Intervalls
-        n: Anzahl stützstellen
+        n: Anzahl stützstellen ZWINGEND INTEGER
         f: Zu integrierende Funktion
     Returns:
         float: Annäherung des Integrals
     '''
+    assert isinstance(n, int) 
 
     a, b = x_grenzen
     a, b = float(a), float(b)
@@ -54,7 +56,7 @@ def sum_Tf(x_grenzen: Tuple[float, float], n: int, f: NPValueToScalarFn) -> floa
     h = abs((b-a)/n)
 
     res = (f(a) + f(b)) / 2
-    print(f'Summierte Trapezregel im Intervall [{a}, {b}]')
+    print(f'Summierte Trapezregel im Intervall [{a}, {b}], h={h}')
     print(f'(f(a) + f(b)) / 2 = {res}')
 
     for i in range(n):
@@ -75,7 +77,7 @@ def sum_Tf(x_grenzen: Tuple[float, float], n: int, f: NPValueToScalarFn) -> floa
 import unittest
 
 class IntegrationTest(unittest.TestCase):
-    def test_Rf_FS20_A1b(self):
+    def test_sum_Rf_FS20_A1b(self):
         u = 2_000
         m_0 = 10_000
         q = 100
@@ -89,14 +91,10 @@ class IntegrationTest(unittest.TestCase):
         a = 0.
         T = 30.
 
-        n = np.ceil((T-a)/h)
+        n = int(np.ceil((T-a)/h))
         assert n == 3
 
         actual = sum_Tf((a, T), n, v)
         self.assertAlmostEquals(actual, 5726.8, places=1)
-
-
-if __name__ == '__main__':
-    unittest.main()
 
 
