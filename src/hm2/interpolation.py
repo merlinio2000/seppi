@@ -1,11 +1,53 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import utl
+import src.util.utl as utl
 
 # TODO HM2 add spline
+def nat_spline_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
+    -> np.ndarray:
+    assert len(x.shape) == 1
+    assert x.shape == y.shape
+    n = x.shape[0]
+    assert n >= 2
+
+    x, y, x_int = x.astype(np.float64), y.astype(
+        np.float64), x_int.astype(np.float64)
+
+    a = y[:-1]
+    h = x[1:] - x[:-1]
+
+    c = np.zeros_like(x)
+
+    if n > 2:
+        A = np.diag(2 * (h[:-1] + h[:1])) + \
+            np.diag(h[1:-1], -1) + np.diag(h[1:-1], 1)
+        print(A)
+        z = 3 * (y[2:] - y[1:-1]) / h[1:] - \
+            3 * (y[1:-1] - y[0:-2]) / h[:-1]
+        print(z)
+        c[1:-1] = np.linalg.solve(A, z)
+
+    b = (y[1:] - y[:-1]) / h - h / 3 * (c[1:] + 2 * c[:-1])
+    d = 1 / (3 * h) * (c[1:] - c[:-1])
+
+    print(f'{b=}')
+    print(f'{c=}')
+    print(f'{d=}')
+    yy = np.zeros_like(x_int)
+
+    # x werte mit Funktion des korrekten Intervalls interpolieren
+    # (der reihe nach)
+    for k in range(n - 1):
+        idx = np.where(np.logical_and(x_int >= x[k], x_int <= x[k+1]))
+
+        dx = x_int[idx] - x[k]
+        yy[idx] = a[k] + b[k] * dx + c[k] * dx**2 + d[k] * dx**3
+
+    return yy
 
 
-def lagrange_int(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) -> np.ndarray:
+def lagrange_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
+    -> np.ndarray:
     '''
     Lagrange Interpolation für ein Polynom vom Grad n
 
@@ -37,6 +79,9 @@ def lagrange_int(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) -> np.ndarray:
         y_int += li * y[i]
 
     return y_int
+
+def spline_interpolation():
+    raise Exception('todo')
 
 def np_polyval_fit_scaling_bsp():
     '''
@@ -73,3 +118,21 @@ def np_polyval_fit_scaling_bsp():
     plt.grid()
     plt.show()
 
+
+
+
+import unittest
+
+
+
+class InterpolationTest(unittest.TestCase):
+    def test_lagrange_int_S4_A1(self):
+        x = np.array([0, 2_500, 5_000, 10_000], dtype=np.float64)
+        y = np.array([1_013, 747, 540, 226], dtype=np.float64)
+        
+        x_gesucht = np.array([3_750], dtype=np.float64)
+
+        y_int = lagrange_interpolation(x, y, x_gesucht)
+        actual = y_int[0]
+        
+        self.assertAlmostEqual(actual, 637.328125)

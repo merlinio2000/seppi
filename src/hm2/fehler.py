@@ -1,6 +1,38 @@
+import math
 import numpy as np
 from typing import Tuple
 
+'''
+--------------------------------------------------
+Interpolation/Ausgleichsrechnung
+--------------------------------------------------
+'''
+
+def absfehler_lagrange_interpolation(x: float, x_messpunkte: np.ndarray, max_nplus1te_ableitung: float):
+    '''
+    REIN THEORETISCH weil n+1-te ableitung der tatsächlichen Funktion f bekannt
+    sein muss
+    
+    Parameters:
+        x: der Punkt an dem der Fehler gesucht ist
+        x_messpunkte: Alle x der Messpunkte mit länge n+1
+        max_nplus1te_ableitung: das Maximum der n+1 ten Ableitung der tatsächlichen
+             Funktion f auf [x_0, x_n]
+    Returns:
+        float: maximaler absoluter fehler an x
+    '''
+    n = len(x_messpunkte) - 1
+    res = 1.
+    for x_i in x_messpunkte:
+        res *= x - x_i
+    res = abs(res) / math.factorial(n+1)
+    return res * abs(max_nplus1te_ableitung)
+
+'''
+--------------------------------------------------
+Integration
+--------------------------------------------------
+'''
 
 def absfehler_sum_Rf(intervall: Tuple[float, float], h: float, max_2te_ableitung: float) -> float:
     '''
