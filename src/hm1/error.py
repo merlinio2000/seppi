@@ -1,5 +1,5 @@
 import numpy as np
-from utl import assert_eq_shape, assert_is_vec, assert_square, assert_dimensions_match
+from ..util.utl import assert_eq_shape, assert_is_vec, assert_square, assert_dimensions_match
 
 
 def err_priori(n: int, alpha: float, x1: float, x0: float):

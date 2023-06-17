@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import math
 import numpy as np
-from utl import assert_dimensions_match, assert_normed, assert_square, is_symmetric
+from ..util.utl import assert_dimensions_match, assert_normed, assert_square, is_symmetric
 
 
 def eigen_QR(A: np.ndarray, max_iter: int) -> tuple[np.ndarray, np.ndarray]:
@@ -214,7 +214,3 @@ class EigenTest(unittest.TestCase):
         self.assertFalse(analysis.B_ist_D)
         self.assertFalse(analysis.komplexe_EW)
         self.assertFalse(analysis.EV_sind_spalten_von_T)
-        
-
-if __name__ == '__main__':
-    unittest.main()

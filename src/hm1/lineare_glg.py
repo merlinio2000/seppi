@@ -2,7 +2,7 @@ from typing import Literal, Union
 import numpy as np
 import scipy.linalg as spl
 
-from utl import assert_square, assert_dimensions_match, assert_eq_shape, assert_is_vec, is_diagonaldominant, bcolors
+from ..util.utl import assert_square, assert_dimensions_match, assert_eq_shape, assert_is_vec, is_diagonaldominant, bcolors
 from error import apriori_n_steps_vec
 
 
