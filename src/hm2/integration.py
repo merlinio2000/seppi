@@ -4,6 +4,31 @@ from src.util import utl
 from ..util import types
 from typing import Tuple
 
+
+# TODO HM2: add romberg, add prints
+def romberg(f, a, b, m):
+    def h(j):
+        return (b-a)/2**j
+
+    def n(j):
+        return 2**j
+
+    def x(i, j):
+        return a + i * h(j)
+
+    T = np.zeros((m+1, m+1))
+    for j in range(m+1):
+        sum = 0
+        for i in range(1, n(j)):
+            sum += f(x(i, j))
+        T[j, 0] = h(j) * ((f(a) + f(b))/2 + sum)
+
+    for i in range(1, m+1):
+        for j in range(0, m-i+1):
+            T[j, i] = (4**i * T[j+1, i-1] - T[j, i-1]) / (4**i - 1)
+
+    return T[0, m]
+
 def sum_Rf(x_grenzen: Tuple[float, float], n: int, f: types.NPValueToScalarFn) -> float:
     '''
     integriert f nach der summierten Rechteckregel
