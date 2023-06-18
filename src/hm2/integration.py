@@ -1,4 +1,6 @@
 import numpy as np
+
+from src.util import utl
 from ..util import types
 from typing import Tuple
 
@@ -33,6 +35,29 @@ def sum_Rf(x_grenzen: Tuple[float, float], n: int, f: types.NPValueToScalarFn) -
     print(f'Summierte Funktionswerte: {res}')
     res *= h
     print(f'Endresulat (*= h): {res}')
+
+    return res
+
+def sum_Tf_variable_h(x: np.ndarray, y: np.ndarray) -> float:
+    '''
+    Integriert tabellierte Daten mit variabler Schrittweite nach der Trapezregel
+
+    Parameters:
+        x: alle x der n+1 Messpunkte
+        y: alle y der n+1 Messpunkte
+    Returns:
+        float: annäherung ans Integral
+    '''
+    utl.assert_is_vec(x)
+    utl.assert_eq_shape(x, y)
+    
+    n = len(x) - 1 
+    print(f'Summierte Trapezregel für tabellierte Daten mit variabler Schrittweite, n={n}')
+    res = 0
+    for i in range(n):
+       step = (y[i] + y[i+1]) / 2 * (x[i+1] - x[i])
+       print(f'\ti={i}; (y_{i} + y_{i+1}) / 2 * (x_{i+1} - x_i) = {step}')
+       res += (y[i] + y[i+1]) / 2 * (x[i+1] - x[i])
 
     return res
 
@@ -149,3 +174,19 @@ class IntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(res_rf, 4.3823144)
         self.assertAlmostEqual(res_tf, 4.6581815)
         self.assertAlmostEqual(res_sf, 4.4742701)
+
+    def test_sum_Tf_var_h_S8_A3(self):
+        r = np.array([0, 800, 1_200, 1_400, 2_000, 3_000, 3_400, 3_600, 4_000, 5_000,
+                      5_500, 6_370], dtype=np.float64)
+        r = r * 1_000 # km -> m
+        rho = np.array([13_000, 12_900, 12_700, 12_000, 11_650, 10_600,
+                       9_900, 5_500, 5_300, 4_750, 4_500, 3_300], dtype=np.float64)
+
+        def m(r, rho):
+            return rho * 4 * np.pi * r**2
+
+        y = m(r, rho)
+
+        m_actual = sum_Tf_variable_h(r, y)
+        m_expected = 6.026e24
+        self.assertAlmostEqual(m_actual, m_expected, delta=1e20) 
