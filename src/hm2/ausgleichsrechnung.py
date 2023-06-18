@@ -123,7 +123,6 @@ def gauss_newton_d(lam0: np.ndarray, g: Callable[[np.ndarray], np.ndarray], \
 
 
 
-
 import unittest
 
 class AusgleichsTest(unittest.TestCase):
@@ -193,5 +192,42 @@ class AusgleichsTest(unittest.TestCase):
 
         self.assertTrue(np.allclose(our_lambdas, expected_lambdas))
 
+    def test_scipy_opt_bsp(self):
+        '''
+        Beispiel zur Ausgleichsrechung mit scipy
+        Entspricht dem gleichen Problem wie test_gauss_newton_S7_A2a
+        '''
+        x = np.array([2., 2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6., 6.5, 7., 7.5, 8.,
+                      8.5, 9., 9.5])
+        y = np.array([159.57209984, 159.8851819, 159.89378952, 160.30305273,
+                      160.84630757, 160.94703969, 161.56961845, 162.31468058,
+                      162.32140561, 162.88880047, 163.53234609, 163.85817086,
+                      163.55339958, 163.86393263, 163.90535931, 163.44385491])
+        assert len(x) == len(y)
+        
+        from sympy import symbols, Matrix, lambdify
+        p = symbols('p0 p1 p2 p3')
+
+        def f(x, _p): # fit Funktion
+            return (_p[0] + _p[1] * 10 ** (_p[2] + _p[3] * x)) / (1 + 10 ** (_p[2] + _p[3] * x))
+
+        lam_0 = np.array([100, 120, 3, -1], dtype=np.float64)
+        tol = 1e-5
+
+
+        g = Matrix([y[k] - f(x[k], p) for k in range(len(x))])
+        Dg = g.jacobian(p)
+        g = lambdify([p], g, 'numpy')
+        Dg = lambdify([p], Dg, 'numpy')
+        
+        def err_func(lam):
+            return np.linalg.norm(g(lam), 2) ** 2
+
+        import scipy.optimize as opt
+
+        scipy_lambdas = opt.fmin(err_func, lam_0, ftol=tol)
+
+        expected_lambdas = np.array([163.88256553, 159.47427156, 2.17225694, -0.4293443])
+        self.assertTrue(np.allclose(scipy_lambdas, expected_lambdas))
 
 
