@@ -4,3 +4,4 @@ from typing import Callable, Union
 NPValue = Union[float, np.ndarray]
 NPValueToValueFn = Callable[[NPValue], NPValue]
 NPValueToScalarFn = Callable[[NPValue], float]
+ScalarToScalarFn = Callable[[float], float]

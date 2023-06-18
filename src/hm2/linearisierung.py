@@ -1,10 +1,10 @@
 import sympy as sp
-import utl
-from utl import AbbruchKriteriumHandler
+import src.util.utl as utl
 import numpy as np
 from typing import Callable
 
-sp.init_printing(pretty_print=True)
+# TODO HM2: unit test
+
 
 def scipy_jacobi_bsp():
     ''' 
@@ -12,6 +12,7 @@ def scipy_jacobi_bsp():
 
     Aus Serie 2: Aufgabe 2: Jacobi-Matrix b) 
     '''
+    sp.init_printing(pretty_print=True)
     x, y, z = sp.symbols('x y z')
     f1 = sp.ln(x**2 + y**2) + z**2
     f2 = sp.exp(y**2 + z**2) + x**2
@@ -32,6 +33,8 @@ def scipy_linearisieren_bsp():
 
     Aus Serie 2: Aufgabe 3: Linearisieren der Vektorfunktion f
     '''
+    sp.init_printing(pretty_print=True)
+
     x, y, z = sp.symbols('x y z')
     f1 = x + y**2 - z**2 - 13
     f2 = sp.ln(y/4) + sp.exp(0.5 * z - 1) - 1
@@ -63,7 +66,7 @@ def scipy_linearisieren_bsp():
 
 
 def newton_systeme(x0: np.ndarray, Df:  Callable[[np.ndarray], np.ndarray], \
-        f: Callable[[np.ndarray], np.ndarray], krit: AbbruchKriteriumHandler, \
+        f: Callable[[np.ndarray], np.ndarray], krit: utl.AbbruchKriteriumHandler, \
         p_max: int = 0):
     '''
     Löst das Newton-Verfahren zur Nullstellenbestimmung für ein System iterativ
@@ -89,12 +92,14 @@ def newton_systeme(x0: np.ndarray, Df:  Callable[[np.ndarray], np.ndarray], \
     x_curr = np.copy(x0)
 
     delta = np.zeros_like(x0)
+    
+    # Validieren ob mitgegebene Funktionen Sinn machen
+    utl.assert_dimensions_match(Df(x0), x0)
+    utl.assert_eq_shape(x0, -f(x0))
 
     while krit(curr_i=i, curr_x=x_curr, delta=delta):
         A = Df(x_curr)
-        utl.assert_dimensions_match(A, x0)
         c = -f(x_curr)
-        utl.assert_eq_shape(x0, c)
         delta = np.linalg.solve(A, c)
 
         p_min = 0

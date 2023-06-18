@@ -99,9 +99,6 @@ def lagrange_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
 
     return y_int
 
-def spline_interpolation():
-    raise Exception('todo')
-
 def np_polyval_fit_scaling_bsp():
     '''
     Beispiel aus Serie 4 Aufgabe 3 b)
@@ -141,8 +138,6 @@ def np_polyval_fit_scaling_bsp():
 
 
 import unittest
-
-
 
 class InterpolationTest(unittest.TestCase):
     def test_lagrange_int_S4_A1(self):
