@@ -117,8 +117,9 @@ Nach viel rechnen kommt man auf folgende Formeln($n$ Anzahl Stützstellen):
 	\item Da in der ersten Spalte $T_{j0}$ die Trapezeregel für immer kleiner
 	      werdende Schrittweiten $h_j$ angewandt wird, werden oft unnötig $f(x_i)$
 	      doppelt ausgewertet. Statdessen kann man diese spalte auch rekursiv definieren.
-          $$T_{j0} = \frac{1}{2} T_{j-1,0} + h_j \sum_{i=1}^{n_{j-1}} f(a + (2i-1)h_j)$$
-          $$\text{wobei: } \quad n_{j-1} = 2^{j-1} \quad \& \quad h_j = \frac{h_{j-1}}{2}$$
+          $$T_{j0} = \frac{1}{2} T_{j-1,0} + h_{j-1}
+            \sum_{i=1}^{n_{j-1}} f(a + (2i-1)h_{j-1})$$
+          $$\text{wobei: } \quad n_{j-1} = 2^{j-1} \quad \& \quad h_{j-1} = \frac{h_{j-1}}{2}$$
 \end{itemize}
 
 
