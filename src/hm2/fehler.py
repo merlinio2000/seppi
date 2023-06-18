@@ -237,7 +237,14 @@ class IntegrationTest(unittest.TestCase):
                 max_2te_ableitung)
         max_h_sf, min_n_sf = max_h_min_n_fuer_fehler_sum_Sf(x_grenzen, max_fehler, \
                 max_4te_ableitung)
+        max_h_rf_naiv, _ = max_h_min_n_fuer_fehler_sum_Rf(x_grenzen, max_fehler, \
+                max_2te_ableitung, naiv=True)
+        max_h_tf_naiv, _ = max_h_min_n_fuer_fehler_sum_Tf(x_grenzen, max_fehler, \
+                max_2te_ableitung, naiv=True)
 
         self.assertAlmostEqual(min_n_rf, 92)
         self.assertAlmostEqual(min_n_tf, 130)
         self.assertAlmostEqual(min_n_sf, 5)
+
+        self.assertAlmostEqual(max_h_rf_naiv, 1.0954e-2, places=6)
+        self.assertAlmostEqual(max_h_tf_naiv, 7.7460e-3)
