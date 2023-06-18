@@ -5,6 +5,16 @@ import src.util.utl as utl
 # TODO HM2 add spline
 def nat_spline_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
     -> np.ndarray:
+    '''
+    natürliche kubische Spline Interpolation für n Stützpunkte 
+
+    Parameters:
+        x: Zeilenvektor mit x der Stützpunkte, länge = n 
+        y: Zeilenvektor mit y der Stützpunkte, länge = n
+        x_int: Die x für die die Interpolation berechnet werden soll
+    Returns:
+        y_int: Die für x_int interpolierten y
+    '''
     assert len(x.shape) == 1
     assert x.shape == y.shape
     n = x.shape[0]
@@ -12,6 +22,8 @@ def nat_spline_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
 
     x, y, x_int = x.astype(np.float64), y.astype(
         np.float64), x_int.astype(np.float64)
+
+    print('natürliche kubische Spline Interpolation')
 
     a = y[:-1]
     h = x[1:] - x[:-1]
@@ -21,18 +33,26 @@ def nat_spline_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
     if n > 2:
         A = np.diag(2 * (h[:-1] + h[:1])) + \
             np.diag(h[1:-1], -1) + np.diag(h[1:-1], 1)
-        print(A)
+        print('A-Matrix für die c_i:')
+        utl.np_pprint(A) 
+
         z = 3 * (y[2:] - y[1:-1]) / h[1:] - \
             3 * (y[1:-1] - y[0:-2]) / h[:-1]
-        print(z)
+        print('z-Vektor für die c_i:')
+        utl.np_pprint(z)
+
         c[1:-1] = np.linalg.solve(A, z)
+        print('Berechnete Koeffizienten c_i aus Ac = z:')
+        utl.np_pprint(c)
 
     b = (y[1:] - y[:-1]) / h - h / 3 * (c[1:] + 2 * c[:-1])
-    d = 1 / (3 * h) * (c[1:] - c[:-1])
+    print('Berechnete Koeffizienten b_i:')
+    utl.np_pprint(b)
 
-    print(f'{b=}')
-    print(f'{c=}')
-    print(f'{d=}')
+    d = 1 / (3 * h) * (c[1:] - c[:-1])
+    print('Berechnete Koeffizienten d_i:')
+    utl.np_pprint(d)
+
     yy = np.zeros_like(x_int)
 
     # x werte mit Funktion des korrekten Intervalls interpolieren

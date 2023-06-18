@@ -160,6 +160,15 @@ def assert_normed(v: np.ndarray):
         raise Exception(f'vector is not normed, {length=}')
     return True
 
+
+'''
+Pretty-Print helpers
+'''
+
+def np_pprint(what: np.ndarray, precision=3, suppress_close_zero=False):
+    print(np.array_str(what, precision=precision, suppress_small=suppress_close_zero))
+
+
 """
 ANSI Escape sequences für farbige schrift im Terminal
 """
