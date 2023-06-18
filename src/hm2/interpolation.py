@@ -2,22 +2,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import src.util.utl as utl
 
-# TODO HM2 add spline
 def nat_spline_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
     -> np.ndarray:
     '''
-    natürliche kubische Spline Interpolation für n Stützpunkte 
+    natürliche kubische Spline Interpolation für n+1 Stützpunkte 
 
     Parameters:
-        x: Zeilenvektor mit x der Stützpunkte, länge = n 
-        y: Zeilenvektor mit y der Stützpunkte, länge = n
+        x: Zeilenvektor mit x der Stützpunkte, länge = n + 1
+        y: Zeilenvektor mit y der Stützpunkte, länge = n + 1
         x_int: Die x für die die Interpolation berechnet werden soll
     Returns:
         y_int: Die für x_int interpolierten y
     '''
     assert len(x.shape) == 1
     assert x.shape == y.shape
-    n = x.shape[0]
+    n = len(x) - 1 
     assert n >= 2
 
     x, y, x_int = x.astype(np.float64), y.astype(
@@ -56,8 +55,8 @@ def nat_spline_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
     yy = np.zeros_like(x_int)
 
     # x werte mit Funktion des korrekten Intervalls interpolieren
-    # (der reihe nach)
-    for k in range(n - 1):
+    # n+1 Stützpunkte -> n Intervalle (der reihe nach)
+    for k in range(n):
         idx = np.where(np.logical_and(x_int >= x[k], x_int <= x[k+1]))
 
         dx = x_int[idx] - x[k]
@@ -156,3 +155,25 @@ class InterpolationTest(unittest.TestCase):
         actual = y_int[0]
         
         self.assertAlmostEqual(actual, 637.328125)
+
+    def test_spline_int_S5_A2(self):
+        x = np.array([1_900, 1_910, 1_920, 1_930, 1_940, 1_950,
+                     1_960, 1_970, 1_980, 1_990, 2_000, 2_010])
+        y = np.array([75.995, 91.972, 105.711, 123.203, 131.669, 150.697,
+                     179.323, 203.212, 226.505, 249.633, 281.422, 308.745])
+        
+        y_int = nat_spline_interpolation(x, y, x)
+        
+        self.assertTrue(np.allclose(y_int, y))
+
+        # x_int = np.linspace(x[0], x[-1], num=100_000)
+        # y_int = nat_spline_interpolation(x, y, x_int)
+        # plt.plot(x, y, 'bo', label='Messpunkte')
+        # plt.plot(x_int, y_int, 'r', label='Spline Interpoliert')
+        # plt.legend()
+        # plt.grid()
+        # plt.show()
+
+
+
+

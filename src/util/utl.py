@@ -166,7 +166,8 @@ Pretty-Print helpers
 '''
 
 def np_pprint(what: np.ndarray, precision=3, suppress_close_zero=False):
-    print(np.array_str(what, precision=precision, suppress_small=suppress_close_zero))
+    print(np.array_str(what, precision=precision, suppress_small=suppress_close_zero, \
+            max_line_width=80))
 
 
 """
