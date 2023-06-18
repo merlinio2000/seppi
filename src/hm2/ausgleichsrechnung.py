@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Callable
 import src.util.types as types
 import src.util.utl as utl
 
@@ -54,8 +55,71 @@ def lin_ausgleich(x: np.ndarray, y: np.ndarray, fs: list[types.NPValueToValueFn]
     return np.linalg.solve(R, Q.T @ y)
 
 
-def nichtlin_ausgleich():
-    raise Exception('todo')
+def gauss_newton_d(lam0: np.ndarray, g: Callable[[np.ndarray], np.ndarray], \
+         Dg: Callable[[np.ndarray], np.ndarray], krit: utl.AbbruchKriteriumHandler, \
+         p_max: int = 0) -> np.ndarray:
+    '''
+    Löst das Gauss-Newton-Verfahren zur nichtlinearen Ausgleichsrechnung für ein System iterativ
+
+    Optional auch mit Dämpfung, siehe p_max
+
+    Parameters:
+        lam0: Startvektor der Iteration
+        g:  Fehlerfunktion g(lam) = y - f(lam), f ist die Ausgleichsfunktion 
+                (Argument muss ein Vektor sein, nicht n separate Werte)
+        Dg: Funktion Dg(lam) die die Jacobi-Matrix von g für einen gewissen Vektor
+            lam berechnet (Argument muss ein Vektor sein, nicht n separate Werte)
+        krit: spezifische Instanz von AbbruchKriteriumHandler
+        p_max = 0: maximaler Dämpfungsgrad, 0 bedeutet ungedämpft
+    Returns:
+        lami: Vektor lam nach erreichen des Abbruchkriteriums
+    '''
+    utl.assert_is_vec(lam0)
+    assert len(lam0.shape) == 1
+
+
+    curr_lam = lam0.astype(np.float64)
+
+    utl.assert_is_vec(g(curr_lam))
+    assert Dg(curr_lam).shape[0] ==  g(curr_lam).shape[0]
+    assert len(curr_lam) == Dg(curr_lam).shape[1]
+
+    k = 0
+    delta = None 
+    
+    print(f'Gauss-Newton-Verfahren zur nichtlinearen Ausgleichsrechung, maximale Dämpfung={p_max}')
+    print('lambda_0:')
+    utl.np_pprint(curr_lam)
+    while krit.keep_going(curr_i=k, curr_x=curr_lam, last_delta=delta):
+        # QR-Zerlegung von Dg(lam) und delta als Lösung des lin. Gleichungssystems
+        Q, R = np.linalg.qr(Dg(curr_lam))
+        # flatten ZWINGEND sonst shape mismatch mit lambda -> nicht elementweise addition         
+        delta = np.linalg.solve(R, -Q.T @ g(curr_lam)).flatten()
+
+        p_min = 0
+        base_norm = np.linalg.norm(g(curr_lam), 2)
+        for p in range(0, p_max + 1):
+            if np.linalg.norm(g(curr_lam + delta / 2**p)) < base_norm:
+                p_min = p
+                break
+        delta = delta / 2**p_min
+               
+        # Update des Vektors Lambda        
+        curr_lam += delta
+
+        print(f'Iteration {k}')
+        print('Dämpfung = ', p_min)
+        print(f'lambda_{k+1}:')
+        utl.np_pprint(curr_lam)
+
+        increment = np.linalg.norm(delta, 2)
+        print('Inkrement = ',increment)
+        err_func = np.linalg.norm(g(curr_lam), 2)**2
+        print('Fehlerfunktional =', err_func)
+
+        k += 1
+
+    return curr_lam
 
 
 
@@ -94,6 +158,40 @@ class AusgleichsTest(unittest.TestCase):
         # plt.legend()
         # plt.grid()
         # plt.show()
+    
+    def test_gauss_newton_S7_A2a(self):
+        x = np.array([2., 2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6., 6.5, 7., 7.5, 8.,
+                      8.5, 9., 9.5])
+        y = np.array([159.57209984, 159.8851819, 159.89378952, 160.30305273,
+                      160.84630757, 160.94703969, 161.56961845, 162.31468058,
+                      162.32140561, 162.88880047, 163.53234609, 163.85817086,
+                      163.55339958, 163.86393263, 163.90535931, 163.44385491])
+        assert len(x) == len(y)
         
+        from sympy import symbols, Matrix, lambdify
+        p = symbols('p0 p1 p2 p3')
+
+        def f(x, _p): # fit Funktion
+            return (_p[0] + _p[1] * 10 ** (_p[2] + _p[3] * x)) / (1 + 10 ** (_p[2] + _p[3] * x))
+
+
+        lam_0 = np.array([100, 120, 3, -1], dtype=np.float64)
+        tol = 1e-5
+
+        krit = utl.AbbruchKriteriumDeltaNormKleinerToleranz(tol)
+
+        g = Matrix([y[k] - f(x[k], p) for k in range(len(x))])
+        Dg = g.jacobian(p)
+        g = lambdify([p], g, 'numpy')
+        Dg = lambdify([p], Dg, 'numpy')
+
+        our_lambdas = gauss_newton_d(lam_0, g, Dg, krit, p_max=5)
+        print(our_lambdas)
+        expected_lambdas = \
+                np.array([163.88257571, 159.47423746, 2.17222151, -0.42933953])
+        print(expected_lambdas)
+
+        self.assertTrue(np.allclose(our_lambdas, expected_lambdas))
+
 
 

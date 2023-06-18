@@ -1,5 +1,6 @@
 import numbers
 import numpy as np
+from typing import Union
 
 """
 Abbruchkriterien
@@ -11,7 +12,7 @@ class AbbruchKriteriumHandler:
     Returns:
         bool: true=weitermachen, false=abbruch
     '''
-    def __call__(self, curr_i: int, curr_x: np.ndarray, delta: np.ndarray) -> bool:
+    def keep_going(self, curr_i: int, curr_x: np.ndarray, last_delta: Union[np.ndarray, None]) -> bool:
         raise Exception('implementation required')
 
 class AbbruchKriteriumNIterationen(AbbruchKriteriumHandler):
@@ -19,11 +20,21 @@ class AbbruchKriteriumNIterationen(AbbruchKriteriumHandler):
     AbbruchKriteriumHandler der nach n Iterationen abbricht
     (i = n-1 weil i bei 0 beginnt)
     '''
-    def __call__(self, curr_i: int, curr_x: np.ndarray, delta: np.ndarray) -> bool: 
+    def keep_going(self, curr_i: int, curr_x: np.ndarray, last_delta: Union[np.ndarray, None]) -> bool: 
         return curr_i <= self.n
 
     def __init__(self, n: int):
         self.n = n
+
+class AbbruchKriteriumDeltaNormKleinerToleranz(AbbruchKriteriumHandler):
+    ''' 
+    AbbruchKriteriumHandler der Abbricht sobald ||delta||_2 < tol
+    '''
+    def keep_going(self, curr_i: int, curr_x: np.ndarray, last_delta: Union[np.ndarray, None]) -> bool: 
+        return (last_delta is None or np.linalg.norm(last_delta, 2) >= self.tol) == True
+
+    def __init__(self, tol: float):
+        self.tol = tol
 
 """
 Helpers

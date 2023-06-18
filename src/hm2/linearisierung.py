@@ -65,8 +65,8 @@ def scipy_linearisieren_bsp():
     sp.pprint(g)
 
 
-def newton_systeme(x0: np.ndarray, Df:  Callable[[np.ndarray], np.ndarray], \
-        f: Callable[[np.ndarray], np.ndarray], krit: utl.AbbruchKriteriumHandler, \
+def newton_systeme_d(x0: np.ndarray, f:  Callable[[np.ndarray], np.ndarray], \
+        Df: Callable[[np.ndarray], np.ndarray], krit: utl.AbbruchKriteriumHandler, \
         p_max: int = 0):
     '''
     Löst das Newton-Verfahren zur Nullstellenbestimmung für ein System iterativ
@@ -76,9 +76,10 @@ def newton_systeme(x0: np.ndarray, Df:  Callable[[np.ndarray], np.ndarray], \
 
     Parameters:
         x0: Startvektor der Iteration (sollte nahe der Nullstelle sein)
+        f:  Vektorfunktion f(x) (Argument muss ein Vektor sein, nicht n separate Werte)
         Df: Funktion Df(x) die die Jacobi-Matrix von f für einen gewissen Vektor
             x berechnet (Argument muss ein Vektor sein, nicht n separate Werte)
-        f:  Vektorfunktion f(x) (Argument muss ein Vektor sein, nicht n separate Werte)
+        krit: spezifische Instanz von AbbruchKriteriumHandler
         p_max = 0: maximaler Dämpfungsgrad, 0 bedeutet ungedämpft
     Returns:
         xi: Vektor x nach erreichen des Abbruchkriteriums
@@ -91,20 +92,20 @@ def newton_systeme(x0: np.ndarray, Df:  Callable[[np.ndarray], np.ndarray], \
     i = 0
     x_curr = np.copy(x0)
 
-    delta = np.zeros_like(x0)
+    delta = None
     
     # Validieren ob mitgegebene Funktionen Sinn machen
     utl.assert_dimensions_match(Df(x0), x0)
     utl.assert_eq_shape(x0, -f(x0))
 
-    while krit(curr_i=i, curr_x=x_curr, delta=delta):
+    while krit.keep_going(curr_i=i, curr_x=x_curr, last_delta=delta):
         A = Df(x_curr)
         c = -f(x_curr)
         delta = np.linalg.solve(A, c)
 
         p_min = 0
         base_norm = np.linalg.norm(f(x_curr), 2)
-        for p in range(1, p_max):
+        for p in range(0, p_max+1):
             # check ist die Lösung eine 'Verbesserung'?
             if np.linalg.norm(f(x_curr + delta / 2**p), 2) < base_norm:
                 p_min = p
