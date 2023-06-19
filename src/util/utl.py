@@ -39,13 +39,15 @@ class AbbruchKriteriumDeltaNormKleinerToleranz(AbbruchKriteriumHandler):
 class AbbruchKriteriumFXNormKleinerTol(AbbruchKriteriumHandler):
     ''' 
     AbbruchKriteriumHandler der Abbricht sobald ||f(x_curr)||_2 < tol
+    Standard norm ist 2
     '''
     def keep_going(self, curr_i: int, curr_x: np.ndarray, last_delta: Union[np.ndarray, None]) -> bool: 
-        return np.linalg.norm(self.f(curr_x), 2) >= self.tol # type: ignore
+        return np.linalg.norm(self.f(curr_x), self.norm) >= self.tol # type: ignore
 
-    def __init__(self, f: Callable, tol: float):
+    def __init__(self, f: Callable, tol: float, norm: Union[int, float] = 2):
         self.f = f
         self.tol = tol
+        self.norm = norm
 
 """
 Helpers
