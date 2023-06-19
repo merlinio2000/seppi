@@ -5,27 +5,34 @@ from ..util import types
 from typing import Tuple
 
 
-# TODO HM2: add romberg, add prints
-def romberg(f, a, b, m):
-    def h(j):
-        return (b-a)/2**j
+def romberg(x_grenzen: Tuple[float, float], f: types.NPValueToScalarFn, m: int)\
+        -> float:
+    '''
+    Romberg-Extrapolation für eine Funktion f im Intervall a,b
 
+    Parameters:
+        x_grenzen: a,b inklusive Intervallgrenzen
+        f: zu integriende funktion
+        m: "tiefe" der Rekursion
+    Returns:
+        float: Annäherung des Integrals (Schritt T_0m)
+    '''
     def n(j):
         return 2**j
 
-    def x(i, j):
-        return a + i * h(j)
+    a, b = float(x_grenzen[0]), float(x_grenzen[1])
+    assert b > a
 
     T = np.zeros((m+1, m+1))
     for j in range(m+1):
-        sum = 0
-        for i in range(1, n(j)):
-            sum += f(x(i, j))
-        T[j, 0] = h(j) * ((f(a) + f(b))/2 + sum)
+        T[j, 0] = sum_Tf(x_grenzen, n(j), f, log=False)
 
     for i in range(1, m+1):
         for j in range(0, m-i+1):
             T[j, i] = (4**i * T[j+1, i-1] - T[j, i-1]) / (4**i - 1)
+
+    print('Rekursionsschritte T_ji:')
+    utl.np_pprint(T)
 
     return T[0, m]
 
@@ -71,7 +78,7 @@ def sum_Tf_variable_h(x: np.ndarray, y: np.ndarray) -> float:
         x: alle x der n+1 Messpunkte
         y: alle y der n+1 Messpunkte
     Returns:
-        float: annäherung ans Integral
+        float: Annäherung ans Integral
     '''
     utl.assert_is_vec(x)
     utl.assert_eq_shape(x, y)
@@ -86,7 +93,7 @@ def sum_Tf_variable_h(x: np.ndarray, y: np.ndarray) -> float:
 
     return res
 
-def sum_Tf(x_grenzen: Tuple[float, float], n: int, f: types.NPValueToScalarFn) -> float:
+def sum_Tf(x_grenzen: Tuple[float, float], n: int, f: types.NPValueToScalarFn, log = True) -> float:
     '''
     integriert f nach der summierten Trapezregel
 
@@ -94,6 +101,7 @@ def sum_Tf(x_grenzen: Tuple[float, float], n: int, f: types.NPValueToScalarFn) -
         x_grenzen: Die untere/obere Grenze des gesuchten Intervalls
         n: Anzahl stützstellen ZWINGEND INTEGER
         f: Zu integrierende Funktion
+        log=True: ob geloggt werden soll
     Returns:
         float: Annäherung des Integrals
     '''
@@ -103,21 +111,23 @@ def sum_Tf(x_grenzen: Tuple[float, float], n: int, f: types.NPValueToScalarFn) -
     a, b = float(a), float(b)
     assert b > a
 
+    dprint = lambda s: print(s) if log else None
+
     h = abs((b-a)/n)
 
     res = (f(a) + f(b)) / 2
-    print(f'Summierte Trapezregel im Intervall [{a}, {b}], h={h}')
-    print(f'(f(a) + f(b)) / 2 = {res}')
+    dprint(f'Summierte Trapezregel im Intervall [{a}, {b}], h={h}')
+    dprint(f'(f(a) + f(b)) / 2 = {res}')
 
     for i in range(1, n):
         x_i = a + i*h
         f_xi = f(x_i)
-        print(f'\ti={i}: x_i={x_i} -> f(x_i) = {f_xi}')
+        dprint(f'\ti={i}: x_i={x_i} -> f(x_i) = {f_xi}')
         res += f_xi
 
-    print(f'Nach summieren der f(x_i): {res}')
+    dprint(f'Nach summieren der f(x_i): {res}')
     res *= h
-    print(f'Endresulat (*= h): {res}')
+    dprint(f'Endresulat (*= h): {res}')
 
     return res
 
@@ -176,7 +186,7 @@ class IntegrationTest(unittest.TestCase):
         assert n == 3
 
         actual = sum_Tf((a, T), n, v)
-        self.assertAlmostEquals(actual, 5726.8, places=1)
+        self.assertAlmostEqual(actual, 5726.8, places=1)
 
     def test_sum_Rf_Tf_Sf_S8_A2(self):
         m = 10 # kg
@@ -215,3 +225,18 @@ class IntegrationTest(unittest.TestCase):
         m_actual = sum_Tf_variable_h(r, y)
         m_expected = 6.026e24
         self.assertAlmostEqual(m_actual, m_expected, delta=1e20) 
+
+    def test_romberg_S9_A(self):
+        def f(x):
+            return np.cos(x**2)
+        
+        m = 4
+
+        x_grenzen = 0, np.pi
+
+        actual = romberg(x_grenzen, f, m)
+
+        self.assertAlmostEqual(actual, 0.564187600278486)
+
+        
+
