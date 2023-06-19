@@ -25,12 +25,16 @@ def nat_spline_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
     print('natürliche kubische Spline Interpolation')
 
     a = y[:-1]
+
+    print('Koeffizienten a_i aus y_i:')
+    utl.np_pprint(a)
+
     h = x[1:] - x[:-1]
 
     c = np.zeros_like(x)
 
-    if n > 2:
-        A = np.diag(2 * (h[:-1] + h[:1])) + \
+    if n >= 2:
+        A = np.diag(2 * (h[:-1] + h[1:])) + \
             np.diag(h[1:-1], -1) + np.diag(h[1:-1], 1)
         print('A-Matrix für die c_i:')
         utl.np_pprint(A) 
@@ -44,11 +48,12 @@ def nat_spline_interpolation(x: np.ndarray, y: np.ndarray, x_int: np.ndarray) \
         print('Berechnete Koeffizienten c_i aus Ac = z:')
         utl.np_pprint(c)
 
-    b = (y[1:] - y[:-1]) / h - h / 3 * (c[1:] + 2 * c[:-1])
+    b = (y[1:] - y[:-1]) / h[:] \
+            - h[:] / 3 * (c[1:] + 2 * c[:-1])
     print('Berechnete Koeffizienten b_i:')
     utl.np_pprint(b)
 
-    d = 1 / (3 * h) * (c[1:] - c[:-1])
+    d = (c[1:] - c[:-1]) / (3*h[:])
     print('Berechnete Koeffizienten d_i:')
     utl.np_pprint(d)
 
@@ -150,8 +155,14 @@ class InterpolationTest(unittest.TestCase):
         actual = y_int[0]
         
         self.assertAlmostEqual(actual, 637.328125)
-
+    
     def test_spline_int_S5_A2(self):
+        x = np.array([4., 6, 8, 10])
+        y = np.array([6., 3, 9, 0])
+
+        _ = nat_spline_interpolation(x, y, np.array([]))
+
+    def test_spline_int_S5_A3(self):
         x = np.array([1_900, 1_910, 1_920, 1_930, 1_940, 1_950,
                      1_960, 1_970, 1_980, 1_990, 2_000, 2_010])
         y = np.array([75.995, 91.972, 105.711, 123.203, 131.669, 150.697,
