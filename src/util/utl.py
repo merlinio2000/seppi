@@ -1,6 +1,6 @@
 import numbers
 import numpy as np
-from typing import Union
+from typing import Union, Callable
 
 """
 Abbruchkriterien
@@ -21,7 +21,7 @@ class AbbruchKriteriumNIterationen(AbbruchKriteriumHandler):
     (i = n-1 weil i bei 0 beginnt)
     '''
     def keep_going(self, curr_i: int, curr_x: np.ndarray, last_delta: Union[np.ndarray, None]) -> bool: 
-        return curr_i <= self.n
+        return curr_i < self.n
 
     def __init__(self, n: int):
         self.n = n
@@ -34,6 +34,17 @@ class AbbruchKriteriumDeltaNormKleinerToleranz(AbbruchKriteriumHandler):
         return (last_delta is None or np.linalg.norm(last_delta, 2) >= self.tol) == True
 
     def __init__(self, tol: float):
+        self.tol = tol
+
+class AbbruchKriteriumFXNormKleinerTol(AbbruchKriteriumHandler):
+    ''' 
+    AbbruchKriteriumHandler der Abbricht sobald ||f(x_curr)||_2 < tol
+    '''
+    def keep_going(self, curr_i: int, curr_x: np.ndarray, last_delta: Union[np.ndarray, None]) -> bool: 
+        return np.linalg.norm(self.f(curr_x), 2) >= self.tol # type: ignore
+
+    def __init__(self, f: Callable, tol: float):
+        self.f = f
         self.tol = tol
 
 """
@@ -131,7 +142,7 @@ Assertions
 
 def assert_eq_shape(a: np.ndarray, b: np.ndarray):
     if a.shape != b.shape:
-        raise Exception("shape mismatch")
+        raise Exception(f"shape mismatch {a.shape} - {b.shape}")
     return True
 
 def assert_square(A: np.ndarray):

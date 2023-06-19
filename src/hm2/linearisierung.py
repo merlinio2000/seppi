@@ -1,4 +1,3 @@
-import sympy as sp
 import src.util.utl as utl
 import numpy as np
 from typing import Callable
@@ -12,6 +11,7 @@ def scipy_jacobi_bsp():
 
     Aus Serie 2: Aufgabe 2: Jacobi-Matrix b) 
     '''
+    import sympy as sp
     sp.init_printing(pretty_print=True)
     x, y, z = sp.symbols('x y z')
     f1 = sp.ln(x**2 + y**2) + z**2
@@ -33,6 +33,7 @@ def scipy_linearisieren_bsp():
 
     Aus Serie 2: Aufgabe 3: Linearisieren der Vektorfunktion f
     '''
+    import sympy as sp
     sp.init_printing(pretty_print=True)
 
     x, y, z = sp.symbols('x y z')
@@ -70,7 +71,7 @@ def newton_systeme_d(x0: np.ndarray, f:  Callable[[np.ndarray], np.ndarray], \
         p_max: int = 0):
     '''
     Löst das Newton-Verfahren zur Nullstellenbestimmung für ein System iterativ
-    \vec{f}(x1, ..., x_n) = \vec{0}
+    vec{f}(x1, ..., x_n) = vec{0}
 
     Optional auch mit Dämpfung, siehe p_max
 
@@ -88,7 +89,9 @@ def newton_systeme_d(x0: np.ndarray, f:  Callable[[np.ndarray], np.ndarray], \
     utl.assert_is_vec(x0)
 
 
-    x0 = x0.astype(np.float64)
+    # zwingend konsistent mit ergebnis von linalg.solve
+    # weil addiert wird
+    x0 = x0.astype(np.float64).flatten()
     i = 0
     x_curr = np.copy(x0)
 
@@ -96,12 +99,16 @@ def newton_systeme_d(x0: np.ndarray, f:  Callable[[np.ndarray], np.ndarray], \
     
     # Validieren ob mitgegebene Funktionen Sinn machen
     utl.assert_dimensions_match(Df(x0), x0)
-    utl.assert_eq_shape(x0, -f(x0))
+    assert len(x0) == len(f(x0))
+
+    print(f'Newton-Verfahren für nichtlineare Systeme mit maximaler Dämpfung={p_max}')
+    print('Startvektor:')
+    utl.np_pprint(x0)
 
     while krit.keep_going(curr_i=i, curr_x=x_curr, last_delta=delta):
         A = Df(x_curr)
         c = -f(x_curr)
-        delta = np.linalg.solve(A, c)
+        delta = np.linalg.solve(A, c).flatten()
 
         p_min = 0
         base_norm = np.linalg.norm(f(x_curr), 2)
@@ -110,11 +117,75 @@ def newton_systeme_d(x0: np.ndarray, f:  Callable[[np.ndarray], np.ndarray], \
             if np.linalg.norm(f(x_curr + delta / 2**p), 2) < base_norm:
                 p_min = p
                 break
+        delta = delta / 2**p_min
 
-        x_curr += delta / 2**p_min
+        print(f'Iteration {i}: dämpfung={p_min}')
+        print('delta:')
+        utl.np_pprint(delta)
+        x_curr += delta 
+        print(f'x_{i+1}:')
+        utl.np_pprint(x_curr)
         i += 1
 
 
     return x_curr
+
+
+
+
+
+
+import unittest
+
+
+class LinearisierungTest(unittest.TestCase):
+    def test_newton_S3_A1(self):
+        from sympy import symbols, Matrix, lambdify
+
+        x1, x2 = symbols('x1 x2')
+
+        f1 = 20 - 18*x1 - 2*x2**2
+        f2 = -4 * x2 * (x1 - x2**2)
+
+        sf = Matrix([f1, f2])
+        X = Matrix([x1, x2])
+        sDf = sf.jacobian(X)
+
+        f = lambdify([(x1, x2)], sf, 'numpy')
+        Df = lambdify([(x1, x2)], sDf, 'numpy')
+
+        krit = utl.AbbruchKriteriumNIterationen(2)
+
+        x0 = np.array([1.1, 0.9])
+        nullstelle = newton_systeme_d(x0, f, Df, krit)
+
+        self.assertAlmostEqual(nullstelle[0], 0.99986314)
+        self.assertAlmostEqual(nullstelle[1], 1.00092549)
+    
+    def test_newton_S3_A3(self):
+        from sympy import symbols, Matrix, lambdify, ln, exp
+
+        x1, x2, x3 = symbols('x1 x2 x3')
+
+        f1 = x1 + x2**2 - x3**2 - 12
+        f2 = ln(x2/4) + exp(0.5*x3 - 1) - 1
+        f3 = (x2 - 3)**2 - x3**3 + 7
+
+        sf = Matrix([f1, f2, f3])
+        X = Matrix([x1, x2, x3])
+        sDf = sf.jacobian(X)
+
+        f = lambdify([(x1, x2, x3)], sf, 'numpy')
+        Df = lambdify([(x1, x2, x3)], sDf, 'numpy')
+
+        tol = 1e-5
+        krit = utl.AbbruchKriteriumFXNormKleinerTol(f, tol)
+
+        x0 = np.array([1.5, 3, 2.5])
+        nullstelle = newton_systeme_d(x0, f, Df, krit, p_max=5)
+
+        self.assertAlmostEqual(nullstelle[0], 0.00000009)
+        self.assertAlmostEqual(nullstelle[1], 4.)
+        self.assertAlmostEqual(nullstelle[2], 2.)
 
 
