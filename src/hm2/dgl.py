@@ -1,3 +1,4 @@
+from src.util import utl
 import numbers
 from typing import Callable
 import numpy as np
@@ -33,7 +34,7 @@ def richtungsfeld_plot_bsp(f: Callable[[np.ndarray, np.ndarray], np.ndarray], \
 
 
 def allg_runge_kutta(x_grenzen: tuple[float, float], n:int, \
-        df: Callable[[float, float], np.ndarray], \
+        f: Callable[[float, float], np.ndarray], \
         y0: float, A: np.ndarray, b: np.ndarray, c: np.ndarray) -> np.ndarray:
     '''
     Löst das allgemeine s-Stufige Runge-Kutta Verfahren
@@ -41,7 +42,7 @@ def allg_runge_kutta(x_grenzen: tuple[float, float], n:int, \
     Parameters:
         x_grenzen: des zu bestimmenden Intervalls
         n: Anzahl Teilintervalle
-        df: Funktion die die Steigung gibt, y' = f(x, y)
+        f: Funktion die die Steigung gibt, y' = f(x, y)
         y0: Startwert
         A: s x s Matrix der Vorkfaktoren für k_s
         b: Vektor mit länge = s der Gewichte der Einzelnen k_s
@@ -80,7 +81,7 @@ def allg_runge_kutta(x_grenzen: tuple[float, float], n:int, \
         k = np.zeros_like(b)
 
         for stufen_idx in range(s):
-            k[stufen_idx] = df(x_i + c[stufen_idx]*h, \
+            k[stufen_idx] = f(x_i + c[stufen_idx]*h, \
                     y[i] + h \
                     * np.sum(A[stufen_idx, :stufen_idx] * k[:stufen_idx]))
         
@@ -91,7 +92,7 @@ def allg_runge_kutta(x_grenzen: tuple[float, float], n:int, \
 
 
 def allg_runge_kutta_vec(x_grenzen: tuple[float, float], n:int, \
-        df: Callable[[float, np.ndarray], np.ndarray], \
+        f: Callable[[float, np.ndarray], np.ndarray], \
         y0: np.ndarray, A: np.ndarray, b: np.ndarray, c: np.ndarray) -> np.ndarray:
     '''
     Löst das allgemeine s-Stufige Runge-Kutta Verfahren für ein System von DGL
@@ -102,7 +103,7 @@ def allg_runge_kutta_vec(x_grenzen: tuple[float, float], n:int, \
     Parameters:
         x_grenzen: des zu bestimmenden Intervalls
         n: Anzahl Teilintervalle
-        df: Funktion die die Steigung gibt, y' = f(x, y)
+        f: Funktion die die Steigung gibt, y' = f(x, y)
         y0: Startzeilenvektor länge m
         A: s x s Matrix der Vorkfaktoren für k_s
         b: Vektor mit länge = s der Gewichte der Einzelnen k_s
@@ -140,16 +141,71 @@ def allg_runge_kutta_vec(x_grenzen: tuple[float, float], n:int, \
 
     for i in range(n):
         x_i = x_min + i * h
-        k = np.zeros_like(b)
+        # k_i stehen in Spalten
+        k = np.zeros((len(y0), s))
 
         for stufen_idx in range(s):
-            k[stufen_idx] = df(x_i + c[stufen_idx]*h, \
-                    y[i] + h \
-                    * np.sum(A[stufen_idx, :stufen_idx] * k[:stufen_idx]))
-        
-        y[i+1] = y[i] + h * np.sum(b * k)
+            a_mal_vorherige_k = np.zeros_like(y0)
+            for m in range(stufen_idx):
+                a_mal_vorherige_k += A[stufen_idx, m] * k[:, m]
+
+            k[:, stufen_idx] = f(x_i + c[stufen_idx]*h, \
+                    y[i] + h * a_mal_vorherige_k)       
+
+        y[i+1] = y[i] + h * np.sum(k * b, axis=1)
     
     return y
+
+def euler_runge_kutta(x_grenzen: tuple[float, float], n:int, \
+        f: Callable[[float, float], np.ndarray], \
+        y0: float) -> np.ndarray:
+    A = np.array([[0]], dtype=np.float64)
+    b = np.array([1])
+    c = np.array([0])
+
+    return allg_runge_kutta(x_grenzen, n, f, y0, A, b, c)
+
+def mittelpunkt_runge_kutta(x_grenzen: tuple[float, float], n:int, \
+        f: Callable[[float, float], np.ndarray], \
+        y0: float) -> np.ndarray:
+    A = np.array([[0, 0], [0.5, 0]], dtype=np.float64)
+    b = np.array([0, 1])
+    c = np.array([0, 0.5])
+
+    return allg_runge_kutta(x_grenzen, n, f, y0, A, b, c)
+
+def mittelpunkt_runge_kutta_vec(x_grenzen: tuple[float, float], n:int, \
+        f: Callable[[float, np.ndarray], np.ndarray], \
+        y0: np.ndarray) -> np.ndarray:
+    A = np.array([[0, 0], [0.5, 0]], dtype=np.float64)
+    b = np.array([0, 1])
+    c = np.array([0, 0.5])
+
+    return allg_runge_kutta_vec(x_grenzen, n, f, y0, A, b, c)
+
+
+def modeuler_runge_kutta(x_grenzen: tuple[float, float], n:int, \
+        f: Callable[[float, float], np.ndarray], \
+        y0: float) -> np.ndarray:
+    A = np.array([[0, 0], [1, 0]])
+    b = np.array([0.5, 0.5])
+    c = np.array([0, 1])
+
+    return allg_runge_kutta(x_grenzen, n, f, y0, A, b, c)
+
+def runge_kutta_4stufig(x_grenzen: tuple[float, float], n:int, \
+        f: Callable[[float, float], np.ndarray], \
+        y0: float) -> np.ndarray:
+    A = np.array([[0, 0, 0, 0],
+                  [0.5, 0, 0, 0], 
+                  [0, 0.5, 0, 0], 
+                  [0, 0, 1, 0]])
+    b = np.array([1/6, 1/3, 1/3, 1/6])
+    c = np.array([0, 0.5, 0.5, 1])
+
+    return allg_runge_kutta(x_grenzen, n, f, y0, A, b, c)
+
+
 
 
 
@@ -192,3 +248,42 @@ class DglTest(unittest.TestCase):
         # plt.show()
 
         self.assertAlmostEqual(y[-1], 4.69046273, places=7)
+
+    def test_allg_runge_kutta_vec_S13_A3(self):
+        m = 97_000 # kg
+        x0 = 0
+        v0 = 100 # m/s
+
+        def dz(t, z):
+            return np.array([z[1], (-5 * z[1]**2 - 570_000)/m])
+
+        y0 = np.array([x0, v0], dtype=np.float64)
+        
+        t_grenzen = 0, 20
+
+        h = 0.1
+        n = int(np.ceil(t_grenzen[1] - t_grenzen[0])/h)
+
+        t = np.arange(t_grenzen[0], t_grenzen[1] + h, step=h)
+        y = mittelpunkt_runge_kutta_vec(t_grenzen, n, dz, y0)
+
+        x_weg = y[:, 0]
+        v = y[:, 1] # == dx/dt
+
+        # import matplotlib.pyplot as plt
+        #
+        # plt.plot(t, x_weg, label='(Brems-)Weg')
+        # plt.plot(t, v, label='Geschwindigkeit')
+        # plt.xlabel('Zeit t')
+        # plt.ylabel('Weg [m]/ Geschwindigkeit [m/s]')
+        # plt.legend()
+        # plt.grid()
+        # plt.show()
+
+        idx_of_v_closest_to_zero = np.abs(v).argmin()
+
+        self.assertAlmostEqual(t[idx_of_v_closest_to_zero], 16.5)
+        
+
+
+
