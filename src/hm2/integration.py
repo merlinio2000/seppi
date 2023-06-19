@@ -226,7 +226,7 @@ class IntegrationTest(unittest.TestCase):
         m_expected = 6.026e24
         self.assertAlmostEqual(m_actual, m_expected, delta=1e20) 
 
-    def test_romberg_S9_A(self):
+    def test_romberg_S9_A3(self):
         def f(x):
             return np.cos(x**2)
         
@@ -239,4 +239,14 @@ class IntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(actual, 0.564187600278486)
 
         
+    def test_romberg_S10_A1(self):
+        m = 97_000 # kg
+        v0 = 100 # m/s
+        
+        def f(v):
+            return m / (5 * v**2 + 570_000)
+
+        actual = romberg((0, v0), f, 4)
+
+        self.assertAlmostEqual(actual, 16.5446, places=4)
 
