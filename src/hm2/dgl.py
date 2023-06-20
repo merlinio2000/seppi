@@ -72,20 +72,30 @@ def allg_runge_kutta(x_grenzen: tuple[float, float], n:int, \
     s = len(b)
 
     h = abs((x_max - x_min)/n)
+
+    print(f'Runge-Kutta im intervall [{x_min},{x_max}], Schrittweite={h}')
     
     y = np.zeros(n+1)
     y[0] = y0
 
     for i in range(n):
         x_i = x_min + i * h
+        print(f'Schritt {i}, x_i = {x_i}, y_i={y[i]}')
         k = np.zeros_like(b)
 
         for stufen_idx in range(s):
+            print(f'''\tk_{stufen_idx} = f(x_i + {c[stufen_idx]} * h, 
+                    y_i + h * {A[stufen_idx, :stufen_idx]} * {k[:stufen_idx]}''')
             k[stufen_idx] = f(x_i + c[stufen_idx]*h, \
                     y[i] + h \
                     * np.sum(A[stufen_idx, :stufen_idx] * k[:stufen_idx]))
         
+        print('k_i für diesen Schritt')
+        utl.np_pprint(k)
+        print('Gewichte b_i der einzelnen k_i')
+        utl.np_pprint(b)
         y[i+1] = y[i] + h * np.sum(b * k)
+        print(f'y_{i+1} = {y[i+1]} = y_i + h * SUM({b} * {k})')
     
     return y
 
@@ -163,6 +173,7 @@ def euler_runge_kutta(x_grenzen: tuple[float, float], n:int, \
     b = np.array([1])
     c = np.array([0])
 
+    print('Klassisches Euler-Verfahren')
     return allg_runge_kutta(x_grenzen, n, f, y0, A, b, c)
 
 def mittelpunkt_runge_kutta(x_grenzen: tuple[float, float], n:int, \
@@ -172,6 +183,7 @@ def mittelpunkt_runge_kutta(x_grenzen: tuple[float, float], n:int, \
     b = np.array([0, 1])
     c = np.array([0, 0.5])
 
+    print('Mittelpunkt-Verfahren')
     return allg_runge_kutta(x_grenzen, n, f, y0, A, b, c)
 
 def mittelpunkt_runge_kutta_vec(x_grenzen: tuple[float, float], n:int, \
@@ -191,6 +203,7 @@ def modeuler_runge_kutta(x_grenzen: tuple[float, float], n:int, \
     b = np.array([0.5, 0.5])
     c = np.array([0, 1])
 
+    print('Modifiziertes Euler-Verfahren')
     return allg_runge_kutta(x_grenzen, n, f, y0, A, b, c)
 
 def runge_kutta_4stufig(x_grenzen: tuple[float, float], n:int, \
@@ -203,8 +216,20 @@ def runge_kutta_4stufig(x_grenzen: tuple[float, float], n:int, \
     b = np.array([1/6, 1/3, 1/3, 1/6])
     c = np.array([0, 0.5, 0.5, 1])
 
+    print('4-Stufiges Runge-Kutta-Verfahren')
     return allg_runge_kutta(x_grenzen, n, f, y0, A, b, c)
 
+def runge_kutta_4stufig_vec(x_grenzen: tuple[float, float], n:int, \
+        f: Callable[[float, np.ndarray], np.ndarray], \
+        y0: np.ndarray) -> np.ndarray:
+    A = np.array([[0, 0, 0, 0],
+                  [0.5, 0, 0, 0], 
+                  [0, 0.5, 0, 0], 
+                  [0, 0, 1, 0]])
+    b = np.array([1/6, 1/3, 1/3, 1/6])
+    c = np.array([0, 0.5, 0.5, 1])
+
+    return allg_runge_kutta_vec(x_grenzen, n, f, y0, A, b, c)
 
 
 
@@ -283,7 +308,34 @@ class DglTest(unittest.TestCase):
         idx_of_v_closest_to_zero = np.abs(v).argmin()
 
         self.assertAlmostEqual(t[idx_of_v_closest_to_zero], 16.5)
+    
+    def test_euler_S11_A2(self):
+        def f(x, y):
+            return x**2 / y
+
+        a, b = 0, 1.4
+
+        h = 0.7
+        n = int(np.ceil((b-a)/h))
+        x = np.arange(a, b + h, step=h)
+        y0 = 2
         
+        y_euler = euler_runge_kutta((a,b), n, f, y0)
+        y_mitt = mittelpunkt_runge_kutta((a,b), n, f, y0)
+        y_modeul = modeuler_runge_kutta((a,b), n, f, y0)
+
+        self.assertAlmostEqual(y_euler[-1], 2.1715, places=4)
+        self.assertAlmostEqual(y_mitt[-1], 2.4057, places=4)
+        self.assertAlmostEqual(y_modeul[-1], 2.4728, places=4)
+
+        # import matplotlib.pyplot as plt
+        # plt.plot(x, y_euler, 'b', label='euler')
+        # plt.plot(x, y_mitt, 'orange', label='mittelpunkt')
+        # plt.plot(x, y_modeul, 'b', label='mod. euler')
+        # plt.legend()
+        # plt.grid()
+        # plt.show()
+
 
 
 

@@ -20,4 +20,3 @@ plt.plot(x_int, sci_spline(x_int), 'g', label='SciPy')
 plt.legend()
 plt.grid()
 plt.show()
-
